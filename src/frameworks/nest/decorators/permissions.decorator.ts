@@ -1,9 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
 import { Resource } from '../../../domain/user/value-objects/resource.vo';
-import {
-  PermissionAction,
-  ActionType,
-} from '../../../domain/user/value-objects/permission-action.vo';
+import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
 
 export type PermissionString = string;
 

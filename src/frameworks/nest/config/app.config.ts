@@ -1,6 +1,5 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LoggingInterceptor } from '../interceptors/logging.interceptor';
 import { HttpResponseInterceptor } from '../interceptors/http-response.interceptor';
 import { ApiExceptionFilter } from '../filters/api-exception.filter';

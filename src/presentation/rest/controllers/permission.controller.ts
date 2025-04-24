@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -19,8 +18,7 @@ import {
   ApiResponse as SwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ResourceType, Resource } from '../../../domain/user/value-objects/resource.vo';
-import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
+import { ResourceType } from '../../../domain/user/value-objects/resource.vo';
 import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../../frameworks/nest/guards/permissions.guard';
 import {
@@ -67,6 +65,7 @@ export class PermissionController {
     );
 
     const result = await this.commandBus.execute(command);
+
     return ApiResponse.success(result);
   }
 
@@ -104,6 +103,7 @@ export class PermissionController {
     @Query('limit') limit?: number,
   ): Promise<ApiResponse<PermissionResponse[]>> {
     const result = await this.queryBus.execute(new ListPermissionsQuery(resource, page, limit));
+
     return ApiResponse.success(result.data, {
       currentPage: result.page,
       totalPages: result.totalPages,
@@ -125,6 +125,7 @@ export class PermissionController {
   @SwaggerResponse({ status: 404, description: 'Permission not found' })
   async getPermission(@Param('id') id: string): Promise<ApiResponse<PermissionResponse>> {
     const result = await this.queryBus.execute(new GetPermissionQuery(id));
+
     return ApiResponse.success(result);
   }
 
@@ -152,6 +153,7 @@ export class PermissionController {
     );
 
     const result = await this.commandBus.execute(command);
+
     return ApiResponse.success(result);
   }
 }

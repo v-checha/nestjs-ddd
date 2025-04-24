@@ -49,6 +49,7 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
       return this.mapToDomain(tokenData);
     } catch (error) {
       this.logger.error(`Error finding refresh token: ${error.message}`);
+
       return null;
     }
   }
@@ -63,6 +64,7 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
       return tokensData.map(this.mapToDomain);
     } catch (error) {
       this.logger.error(`Error finding refresh tokens for user: ${error.message}`);
+
       return [];
     }
   }

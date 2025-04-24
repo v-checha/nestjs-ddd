@@ -95,7 +95,7 @@ export class TokenService {
     const tokens = await this.refreshTokenRepository.findAllByUserId(userId);
     if (tokens.length >= 5) {
       // If the user has 5 or more active tokens, revoke the oldest ones
-      const tokensToKeep = tokens.slice(0, 4);
+      const _tokensToKeep = tokens.slice(0, 4);
       const tokensToRemove = tokens.slice(4);
 
       for (const token of tokensToRemove) {

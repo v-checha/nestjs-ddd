@@ -4,8 +4,6 @@ import { PermissionDto } from '../../dtos/permission.dto';
 import { Inject } from '@nestjs/common';
 import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
 import { PermissionMapper } from '../../mappers/permission.mapper';
-import { Resource } from '../../../../domain/user/value-objects/resource.vo';
-import { PermissionAction } from '../../../../domain/user/value-objects/permission-action.vo';
 import { Permission } from '../../../../domain/user/entities/permission.entity';
 import { EntityNotFoundException } from '../../../../domain/common/exceptions/domain.exception';
 

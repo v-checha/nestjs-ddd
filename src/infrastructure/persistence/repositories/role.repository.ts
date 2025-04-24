@@ -38,6 +38,7 @@ export class PrismaRoleRepository implements RoleRepository {
       return this.mapToDomain(roleData);
     } catch (error) {
       this.logger.error(`Error finding role by ID: ${error.message}`);
+
       return null;
     }
   }
@@ -60,6 +61,7 @@ export class PrismaRoleRepository implements RoleRepository {
       return this.mapToDomain(roleData);
     } catch (error) {
       this.logger.error(`Error finding role by name: ${error.message}`);
+
       return null;
     }
   }
@@ -83,6 +85,7 @@ export class PrismaRoleRepository implements RoleRepository {
       return this.mapToDomain(roleData);
     } catch (error) {
       this.logger.error(`Error finding role by type: ${error.message}`);
+
       return null;
     }
   }
@@ -105,6 +108,7 @@ export class PrismaRoleRepository implements RoleRepository {
       return this.mapToDomain(roleData);
     } catch (error) {
       this.logger.error(`Error finding default role: ${error.message}`);
+
       return null;
     }
   }
@@ -220,6 +224,7 @@ export class PrismaRoleRepository implements RoleRepository {
       };
     } catch (error) {
       this.logger.error(`Error finding all roles: ${error.message}`);
+
       return {
         data: [],
         total: 0,
@@ -246,6 +251,7 @@ export class PrismaRoleRepository implements RoleRepository {
     const permissions =
       roleData.rolePermissions?.map((rolePermission: any) => {
         const permissionData = rolePermission.permission;
+
         return Permission.create(
           {
             name: permissionData.name,

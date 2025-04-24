@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ForgotPasswordCommand } from './forgot-password.command';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
 import { Email } from '../../../../domain/user/value-objects/email.vo';
 import { TokenService } from '../../../../infrastructure/services/token.service';

@@ -15,6 +15,7 @@ export class ListUsersHandler implements IQueryHandler<ListUsersQuery, UserDto[]
 
   async execute(_: ListUsersQuery): Promise<UserDto[]> {
     const users = await this.userRepository.findAll();
+
     return this.userMapper.toDtoList(users);
   }
 }

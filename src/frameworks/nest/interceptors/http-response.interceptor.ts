@@ -15,7 +15,7 @@ export class HttpResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest<Request>();
     const response = context.switchToHttp().getResponse();
-    const status = response.statusCode || HttpStatus.OK;
+    const _status = response.statusCode || HttpStatus.OK;
 
     // Get base URL for link generation
     const baseUrl = `${request.protocol}://${request.get('host')}${request.path}`;

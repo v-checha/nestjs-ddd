@@ -26,6 +26,7 @@ export class EmailService {
       return true;
     } catch (error) {
       this.logger.error(`Failed to send email: ${error.message}`);
+
       return false;
     }
   }

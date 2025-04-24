@@ -61,6 +61,7 @@ export class PermissionsGuard implements CanActivate {
 
       if (!resourceStr || !actionStr) {
         this.logger.warn(`Invalid permission string format: ${permissionString}`);
+
         return false;
       }
 
@@ -72,6 +73,7 @@ export class PermissionsGuard implements CanActivate {
         return userEntity.roles.some(role => role.hasPermissionFor(resource, action));
       } catch (error) {
         this.logger.warn(`Invalid permission: ${permissionString}. Error: ${error.message}`);
+
         return false;
       }
     });

@@ -15,7 +15,7 @@ export class StripePaymentService {
     // In a real application, this would come from environment variables
     const apiKey = 'sk_test_your_stripe_key';
     this.stripe = new Stripe(apiKey, {
-      apiVersion: '2023-10-16', // Use the latest API version
+      apiVersion: '2025-03-31.basil', // Use the latest API version
     });
   }
 

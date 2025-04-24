@@ -17,6 +17,7 @@ export class RoleMapper {
     dto.permissions = this.permissionMapper.toDtoList(role.permissions);
     dto.createdAt = role.createdAt;
     dto.updatedAt = role.updatedAt;
+
     return dto;
   }
 

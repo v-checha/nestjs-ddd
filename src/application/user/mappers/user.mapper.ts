@@ -18,6 +18,7 @@ export class UserMapper {
     dto.lastLogin = user.lastLogin;
     dto.createdAt = user.createdAt;
     dto.updatedAt = user.updatedAt;
+
     return dto;
   }
 

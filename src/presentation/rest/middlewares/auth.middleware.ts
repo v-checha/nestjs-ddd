@@ -17,7 +17,7 @@ export class AuthMiddleware implements NestMiddleware {
       const payload = this.jwtAuthService.validateToken(token);
       req['user'] = { id: payload.sub, email: payload.email };
       next();
-    } catch (error) {
+    } catch (_error) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
   }

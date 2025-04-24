@@ -15,6 +15,7 @@ export class PermissionMapper {
     dto.action = permission.action.value as ActionType;
     dto.createdAt = permission.createdAt;
     dto.updatedAt = permission.updatedAt;
+
     return dto;
   }
 

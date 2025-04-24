@@ -28,6 +28,7 @@ export class PrismaPermissionRepository implements PermissionRepository {
       return this.mapToDomain(permissionData);
     } catch (error) {
       this.logger.error(`Error finding permission by ID: ${error.message}`);
+
       return null;
     }
   }
@@ -43,6 +44,7 @@ export class PrismaPermissionRepository implements PermissionRepository {
       return this.mapToDomain(permissionData);
     } catch (error) {
       this.logger.error(`Error finding permission by name: ${error.message}`);
+
       return null;
     }
   }
@@ -53,9 +55,11 @@ export class PrismaPermissionRepository implements PermissionRepository {
       const permissions = await this.prisma.permission.findMany({
         where: { resource: resourceStr },
       });
+
       return permissions.map(permission => this.mapToDomain(permission));
     } catch (error) {
       this.logger.error(`Error finding permissions by resource: ${error.message}`);
+
       return [];
     }
   }
@@ -66,9 +70,11 @@ export class PrismaPermissionRepository implements PermissionRepository {
       const permissions = await this.prisma.permission.findMany({
         where: { action: actionStr },
       });
+
       return permissions.map(permission => this.mapToDomain(permission));
     } catch (error) {
       this.logger.error(`Error finding permissions by action: ${error.message}`);
+
       return [];
     }
   }
@@ -92,6 +98,7 @@ export class PrismaPermissionRepository implements PermissionRepository {
       return this.mapToDomain(permissionData);
     } catch (error) {
       this.logger.error(`Error finding permission by resource and action: ${error.message}`);
+
       return null;
     }
   }
@@ -181,6 +188,7 @@ export class PrismaPermissionRepository implements PermissionRepository {
       };
     } catch (error) {
       this.logger.error(`Error finding all permissions: ${error.message}`);
+
       return {
         data: [],
         total: 0,

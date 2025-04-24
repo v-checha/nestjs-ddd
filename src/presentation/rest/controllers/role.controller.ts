@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
@@ -47,6 +47,7 @@ export class RoleController {
     const command = new CreateRoleCommand(request.name, request.description, request.permissionIds);
 
     const result = await this.commandBus.execute(command);
+
     return ApiResponse.success(result);
   }
 
@@ -76,6 +77,7 @@ export class RoleController {
     @Query('limit') limit?: number,
   ): Promise<ApiResponse<RoleResponse[]>> {
     const result = await this.queryBus.execute(new ListRolesQuery(page, limit));
+
     return ApiResponse.success(result.data, {
       currentPage: result.page,
       totalPages: result.totalPages,
@@ -96,6 +98,7 @@ export class RoleController {
   @SwaggerResponse({ status: 404, description: 'Role not found' })
   async getRole(@Param('id') id: string): Promise<ApiResponse<RoleResponse>> {
     const result = await this.queryBus.execute(new GetRoleQuery(id));
+
     return ApiResponse.success(result);
   }
 
@@ -121,6 +124,7 @@ export class RoleController {
     );
 
     const result = await this.commandBus.execute(command);
+
     return ApiResponse.success(result);
   }
 }

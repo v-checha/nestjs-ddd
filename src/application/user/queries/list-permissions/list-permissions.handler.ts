@@ -23,6 +23,7 @@ export class ListPermissionsHandler
     if (resource) {
       const resourceObj = Resource.create(resource);
       const permissions = await this.permissionRepository.findByResource(resourceObj);
+
       return {
         data: this.permissionMapper.toDtoList(permissions),
         total: permissions.length,
@@ -33,6 +34,7 @@ export class ListPermissionsHandler
     }
 
     const result = await this.permissionRepository.findAll(page, limit);
+
     return {
       data: this.permissionMapper.toDtoList(result.data),
       total: result.total,

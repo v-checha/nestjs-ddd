@@ -55,7 +55,7 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand,
         userId: user.id,
         email: user.email.value,
       };
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
   }

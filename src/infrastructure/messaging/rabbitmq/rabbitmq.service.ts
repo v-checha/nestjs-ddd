@@ -15,6 +15,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 
   async publishMessage(exchange: string, routingKey: string, message: any): Promise<boolean> {
     console.log(`[MOCK] Publishing message to ${exchange}.${routingKey}:`, message);
+
     return true;
   }
 
@@ -22,7 +23,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     exchange: string,
     routingKey: string,
     queue: string,
-    callback: (message: any) => void,
+    _callback: (message: any) => void,
   ): Promise<void> {
     console.log(`[MOCK] Subscribed to ${exchange}.${routingKey} via queue ${queue}`);
   }

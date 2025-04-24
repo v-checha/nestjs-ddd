@@ -5,7 +5,6 @@ import { RoleName } from '../value-objects/role-name.vo';
 import { RoleType, RoleTypeEnum } from '../value-objects/role-type.vo';
 import { Resource } from '../value-objects/resource.vo';
 import { PermissionAction, ActionType } from '../value-objects/permission-action.vo';
-import { PermissionId } from '../value-objects/permission-id.vo';
 
 interface RoleProps {
   name: RoleName;

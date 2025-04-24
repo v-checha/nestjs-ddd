@@ -50,6 +50,7 @@ export class PrismaVerificationTokenRepository implements VerificationTokenRepos
       return this.mapToDomain(tokenData);
     } catch (error) {
       this.logger.error(`Error finding verification token: ${error.message}`);
+
       return null;
     }
   }
@@ -74,6 +75,7 @@ export class PrismaVerificationTokenRepository implements VerificationTokenRepos
       return this.mapToDomain(tokenData);
     } catch (error) {
       this.logger.error(`Error finding verification token for user: ${error.message}`);
+
       return null;
     }
   }

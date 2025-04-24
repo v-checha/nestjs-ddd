@@ -53,6 +53,7 @@ export class AuthController {
     );
 
     const result = await this.commandBus.execute(command);
+
     return ApiResponse.success(result);
   }
 
@@ -70,6 +71,7 @@ export class AuthController {
     const command = new LoginCommand(request.email, request.password);
 
     const result = await this.commandBus.execute(command);
+
     return ApiResponse.success(result);
   }
 
@@ -87,8 +89,9 @@ export class AuthController {
     try {
       const command = new VerifyEmailCommand(request.token);
       const result = await this.commandBus.execute(command);
+
       return ApiResponse.success(result);
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid or expired verification token');
     }
   }
@@ -104,6 +107,7 @@ export class AuthController {
   async forgotPassword(@Body() request: ForgotPasswordRequest): Promise<ApiResponse<null>> {
     const command = new ForgotPasswordCommand(request.email);
     await this.commandBus.execute(command);
+
     return ApiResponse.success(null, { message: 'Password reset email sent' });
   }
 
@@ -121,8 +125,9 @@ export class AuthController {
     try {
       const command = new ResetPasswordCommand(request.token, request.newPassword);
       const result = await this.commandBus.execute(command);
+
       return ApiResponse.success(result);
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid or expired reset token');
     }
   }
@@ -143,8 +148,9 @@ export class AuthController {
     try {
       const command = new RefreshTokenCommand(request.refreshToken);
       const result = await this.commandBus.execute(command);
+
       return ApiResponse.success(result);
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
@@ -160,6 +166,7 @@ export class AuthController {
   async logout(@Body() request: LogoutRequest): Promise<ApiResponse<null>> {
     const command = new LogoutCommand(request.refreshToken);
     await this.commandBus.execute(command);
+
     return ApiResponse.success(null, { message: 'Logout successful' });
   }
 }

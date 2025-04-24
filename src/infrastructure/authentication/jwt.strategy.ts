@@ -13,9 +13,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     @Inject('UserRepository')
     private userRepository: UserRepository,
   ) {
+    const secretKey = configService.get<string>('app.jwtSecret');
+    if (!secretKey) {
+      throw new Error('JWT secret key is not defined');
+    }
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.get<string>('app.jwtSecret'),
+      secretOrKey: secretKey,
       ignoreExpiration: false,
     });
   }

@@ -46,6 +46,7 @@ export class PrismaUserRepository implements UserRepository {
       return this.mapToDomain(userData);
     } catch (error) {
       this.logger.error(`Error finding user by ID: ${error.message}`);
+
       return null;
     }
   }
@@ -76,6 +77,7 @@ export class PrismaUserRepository implements UserRepository {
       return this.mapToDomain(userData);
     } catch (error) {
       this.logger.error(`Error finding user by email: ${error.message}`);
+
       return null;
     }
   }
@@ -165,9 +167,11 @@ export class PrismaUserRepository implements UserRepository {
           },
         },
       });
+
       return users.map(user => this.mapToDomain(user));
     } catch (error) {
       this.logger.error(`Error finding all users: ${error.message}`);
+
       return [];
     }
   }
@@ -193,6 +197,7 @@ export class PrismaUserRepository implements UserRepository {
         const permissions =
           roleData.rolePermissions?.map((rolePermission: any) => {
             const permissionData = rolePermission.permission;
+
             return Permission.create(
               {
                 name: permissionData.name,

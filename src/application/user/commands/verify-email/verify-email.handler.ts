@@ -48,9 +48,9 @@ export class VerifyEmailHandler implements ICommandHandler<VerifyEmailCommand, U
       await this.verificationTokenRepository.save(verificationToken);
 
       return this.userMapper.toDto(user);
-    } catch (error) {
-      if (error instanceof NotFoundException || error instanceof UnauthorizedException) {
-        throw error;
+    } catch (_error) {
+      if (_error instanceof NotFoundException || _error instanceof UnauthorizedException) {
+        throw _error;
       }
       throw new UnauthorizedException('Invalid or expired token');
     }

@@ -2,9 +2,12 @@ import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 
+// Define type for validation errors
+type ValidationConstraint = Record<string, string>;
+
 @Injectable()
-export class ValidationPipe implements PipeTransform<any> {
-  async transform(value: any, { metatype }: ArgumentMetadata) {
+export class ValidationPipe implements PipeTransform<unknown> {
+  async transform(value: unknown, { metatype }: ArgumentMetadata) {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
@@ -14,7 +17,8 @@ export class ValidationPipe implements PipeTransform<any> {
 
     if (errors.length > 0) {
       const messages = errors.map(
-        err => `${err.property}: ${Object.values(err.constraints as {}).join(', ')}`,
+        err =>
+          `${err.property}: ${Object.values(err.constraints as ValidationConstraint).join(', ')}`,
       );
 
       throw new BadRequestException({
@@ -26,8 +30,9 @@ export class ValidationPipe implements PipeTransform<any> {
     return object;
   }
 
-  private toValidate(metatype: Function): boolean {
-    const types: Function[] = [String, Boolean, Number, Array, Object];
-    return !types.includes(metatype);
+  private toValidate(metatype: abstract new (...args: any[]) => any): boolean {
+    const types = [String, Boolean, Number, Array, Object];
+
+    return !types.includes(metatype as any);
   }
 }

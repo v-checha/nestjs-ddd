@@ -1,0 +1,15 @@
+dist
+node_modules
+coverage
+.docker
+.vscode
+.idea
+.angular
+.eslintrc.js
+.huskyrc
+.lintstagedrc.json
+.prettierrc
+prisma/migrations
+jest.config.js
+*.md
+*.env*
