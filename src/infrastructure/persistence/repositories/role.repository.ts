@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { RoleRepository } from '../../../domain/user/repositories/role-repository.interface';
-import { Role } from '../../../domain/user/entities/role.entity';
-import { Permission, PermissionAction } from '../../../domain/user/entities/permission.entity';
+import { PaginatedResult, RoleRepository } from '../../../domain/user/repositories/role-repository.interface';
+import { Role, RoleType } from '../../../domain/user/entities/role.entity';
+import { Permission, PermissionAction, Resource } from '../../../domain/user/entities/permission.entity';
 import { PrismaService } from '../prisma/prisma.service';
+import { EntityDeleteException, EntitySaveException } from '../../../domain/common/exceptions/domain.exception';
 
 @Injectable()
 export class PrismaRoleRepository implements RoleRepository {
@@ -54,22 +55,82 @@ export class PrismaRoleRepository implements RoleRepository {
     }
   }
 
+  async findByType(type: RoleType): Promise<Role | null> {
+    try {
+      const roleData = await this.prisma.role.findFirst({
+        where: { type: type },
+        include: {
+          rolePermissions: {
+            include: {
+              permission: true,
+            },
+          },
+        },
+      });
+
+      if (!roleData) return null;
+
+      return this.mapToDomain(roleData);
+    } catch (error) {
+      this.logger.error(`Error finding role by type: ${error.message}`);
+      return null;
+    }
+  }
+
+  async findDefault(): Promise<Role | null> {
+    try {
+      const roleData = await this.prisma.role.findFirst({
+        where: { isDefault: true },
+        include: {
+          rolePermissions: {
+            include: {
+              permission: true,
+            },
+          },
+        },
+      });
+
+      if (!roleData) return null;
+
+      return this.mapToDomain(roleData);
+    } catch (error) {
+      this.logger.error(`Error finding default role: ${error.message}`);
+      return null;
+    }
+  }
+
   async save(role: Role): Promise<void> {
     try {
       // Start a transaction to handle role and permission relationships
       await this.prisma.$transaction(async (prisma) => {
+        // Handle scenarios where this is the new default role
+        if (role.isDefault) {
+          // Clear default flag on all other roles
+          await prisma.role.updateMany({
+            where: { 
+              isDefault: true,
+              NOT: { id: role.id }
+            },
+            data: { isDefault: false }
+          });
+        }
+        
         // Upsert the role
         await prisma.role.upsert({
           where: { id: role.id },
           update: {
             name: role.name,
             description: role.description,
+            type: role.type,
+            isDefault: role.isDefault,
             updatedAt: new Date(),
           },
           create: {
             id: role.id,
             name: role.name,
             description: role.description,
+            type: role.type,
+            isDefault: role.isDefault,
             createdAt: role.createdAt,
             updatedAt: role.updatedAt,
           },
@@ -112,13 +173,25 @@ export class PrismaRoleRepository implements RoleRepository {
       });
     } catch (error) {
       this.logger.error(`Error saving role: ${error.message}`);
-      throw new Error(`Failed to save role: ${error.message}`);
+      throw new EntitySaveException('Role', error.message);
     }
   }
 
-  async findAll(): Promise<Role[]> {
+  async findAll(page = 1, limit = 10): Promise<PaginatedResult<Role>> {
     try {
+      const skip = (page - 1) * limit;
+
+      // Get total count
+      const total = await this.prisma.role.count();
+      
+      // Calculate total pages
+      const totalPages = Math.ceil(total / limit);
+      
+      // Get paginated data with relationships
       const roles = await this.prisma.role.findMany({
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
         include: {
           rolePermissions: {
             include: {
@@ -127,10 +200,23 @@ export class PrismaRoleRepository implements RoleRepository {
           },
         },
       });
-      return roles.map((role) => this.mapToDomain(role));
+      
+      return {
+        data: roles.map((role) => this.mapToDomain(role)),
+        total,
+        page,
+        limit,
+        totalPages,
+      };
     } catch (error) {
       this.logger.error(`Error finding all roles: ${error.message}`);
-      return [];
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
+      };
     }
   }
 
@@ -141,7 +227,7 @@ export class PrismaRoleRepository implements RoleRepository {
       });
     } catch (error) {
       this.logger.error(`Error deleting role: ${error.message}`);
-      throw new Error(`Failed to delete role: ${error.message}`);
+      throw new EntityDeleteException('Role', error.message);
     }
   }
 
@@ -152,7 +238,7 @@ export class PrismaRoleRepository implements RoleRepository {
       return Permission.create({
         name: permissionData.name,
         description: permissionData.description,
-        resource: permissionData.resource,
+        resource: permissionData.resource as Resource,
         action: permissionData.action as PermissionAction,
         createdAt: permissionData.createdAt,
         updatedAt: permissionData.updatedAt,
@@ -163,6 +249,8 @@ export class PrismaRoleRepository implements RoleRepository {
       name: roleData.name,
       description: roleData.description,
       permissions: permissions,
+      type: roleData.type as RoleType,
+      isDefault: roleData.isDefault,
       createdAt: roleData.createdAt,
       updatedAt: roleData.updatedAt,
     }, roleData.id);

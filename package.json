@@ -16,7 +16,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --name init",
     "db:push": "prisma db push",
-    "db:seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
+    "db:seed": "ts-node -r tsconfig-paths/register prisma/seed.ts",
+    "db:simulate-migrate": "ts-node -r tsconfig-paths/register prisma/simulate-migrate.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -41,6 +42,9 @@
     "stripe": "^14.11.0",
     "uuid": "^9.0.1",
     "winston": "^3.11.0"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

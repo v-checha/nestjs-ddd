@@ -2,10 +2,20 @@ import { Entity } from '../../common/base/entity.base';
 import { v4 as uuidv4 } from 'uuid';
 import { Permission } from './permission.entity';
 
+export enum RoleType {
+  SUPER_ADMIN = 'super_admin',
+  ADMIN = 'admin',
+  MODERATOR = 'moderator',
+  USER = 'user',
+  GUEST = 'guest',
+}
+
 interface RoleProps {
   name: string;
   description: string;
   permissions: Permission[];
+  type?: RoleType;
+  isDefault?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -27,6 +37,14 @@ export class Role extends Entity<RoleProps> {
     return this.props.permissions;
   }
 
+  get type(): RoleType {
+    return this.props.type ?? RoleType.USER;
+  }
+  
+  get isDefault(): boolean {
+    return this.props.isDefault ?? false;
+  }
+
   get createdAt(): Date {
     return this.props.createdAt ?? new Date();
   }
@@ -39,11 +57,53 @@ export class Role extends Entity<RoleProps> {
     return new Role(
       {
         ...props,
+        type: props.type ?? RoleType.USER,
+        isDefault: props.isDefault ?? false,
+        permissions: props.permissions || [],
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
       id ?? uuidv4(),
     );
+  }
+  
+  /**
+   * Create a predefined role with appropriate permissions
+   */
+  public static createPredefinedRole(type: RoleType, permissions: Permission[] = []): Role {
+    let name = '';
+    let description = '';
+    
+    switch (type) {
+      case RoleType.SUPER_ADMIN:
+        name = 'Super Administrator';
+        description = 'Complete access to all system resources and functionalities';
+        break;
+      case RoleType.ADMIN:
+        name = 'Administrator';
+        description = 'Administrative access to system resources';
+        break;
+      case RoleType.MODERATOR:
+        name = 'Moderator';
+        description = 'Manage and moderate user generated content';
+        break;
+      case RoleType.USER:
+        name = 'User';
+        description = 'Standard user access';
+        break;
+      case RoleType.GUEST:
+        name = 'Guest';
+        description = 'Limited access to public resources';
+        break;
+    }
+    
+    return Role.create({
+      name,
+      description,
+      permissions,
+      type,
+      isDefault: type === RoleType.USER, // Make the regular user role default
+    });
   }
 
   public updateDetails(name: string, description: string): void {

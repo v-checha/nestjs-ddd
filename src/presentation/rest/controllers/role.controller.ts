@@ -6,18 +6,21 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
   ApiOperation,
-  ApiResponse,
+  ApiQuery,
+  ApiResponse as SwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Resource, PermissionAction } from '../../../domain/user/entities/permission.entity';
 import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../../frameworks/nest/guards/permissions.guard';
-import { RequirePermissions } from '../../../frameworks/nest/decorators/permissions.decorator';
+import { RequirePermissions, createPermissionString } from '../../../frameworks/nest/decorators/permissions.decorator';
 import { CreateRoleRequest } from '../dtos/request/create-role.request';
 import { UpdateRoleRequest } from '../dtos/request/update-role.request';
 import { RoleResponse } from '../dtos/response/role.response';
@@ -25,6 +28,7 @@ import { CreateRoleCommand } from '../../../application/user/commands/create-rol
 import { UpdateRoleCommand } from '../../../application/user/commands/update-role/update-role.command';
 import { GetRoleQuery } from '../../../application/user/queries/get-role/get-role.query';
 import { ListRolesQuery } from '../../../application/user/queries/list-roles/list-roles.query';
+import { ApiResponse } from '../dtos/response/api-response';
 
 @ApiTags('roles')
 @Controller('roles')
@@ -38,64 +42,87 @@ export class RoleController {
 
   @Post()
   @UseGuards(PermissionsGuard)
-  @RequirePermissions('role:create')
+  @RequirePermissions(createPermissionString(Resource.ROLE, PermissionAction.CREATE))
   @ApiOperation({ summary: 'Create a new role' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 201,
     description: 'Role created successfully',
     type: RoleResponse,
   })
-  async createRole(@Body() request: CreateRoleRequest): Promise<RoleResponse> {
+  async createRole(@Body() request: CreateRoleRequest): Promise<ApiResponse<RoleResponse>> {
     const command = new CreateRoleCommand(
       request.name,
       request.description,
       request.permissionIds,
     );
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+    return ApiResponse.success(result);
   }
 
   @Get()
   @UseGuards(PermissionsGuard)
-  @RequirePermissions('role:read')
+  @RequirePermissions(createPermissionString(Resource.ROLE, PermissionAction.READ))
   @ApiOperation({ summary: 'Get all roles' })
-  @ApiResponse({
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number for pagination',
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page',
+    type: Number,
+  })
+  @SwaggerResponse({
     status: 200,
     description: 'List of roles',
     type: [RoleResponse],
   })
-  async getRoles(): Promise<RoleResponse[]> {
-    return this.queryBus.execute(new ListRolesQuery());
+  async getRoles(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ): Promise<ApiResponse<RoleResponse[]>> {
+    const result = await this.queryBus.execute(new ListRolesQuery(page, limit));
+    return ApiResponse.success(result.data, {
+      currentPage: result.page,
+      totalPages: result.totalPages,
+      totalCount: result.total,
+      pageSize: result.limit,
+    });
   }
 
   @Get(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermissions('role:read')
+  @RequirePermissions(createPermissionString(Resource.ROLE, PermissionAction.READ))
   @ApiOperation({ summary: 'Get a role by ID' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Role found',
     type: RoleResponse,
   })
-  @ApiResponse({ status: 404, description: 'Role not found' })
-  async getRole(@Param('id') id: string): Promise<RoleResponse> {
-    return this.queryBus.execute(new GetRoleQuery(id));
+  @SwaggerResponse({ status: 404, description: 'Role not found' })
+  async getRole(@Param('id') id: string): Promise<ApiResponse<RoleResponse>> {
+    const result = await this.queryBus.execute(new GetRoleQuery(id));
+    return ApiResponse.success(result);
   }
 
   @Put(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermissions('role:update')
+  @RequirePermissions(createPermissionString(Resource.ROLE, PermissionAction.UPDATE))
   @ApiOperation({ summary: 'Update a role' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Role updated successfully',
     type: RoleResponse,
   })
-  @ApiResponse({ status: 404, description: 'Role not found' })
+  @SwaggerResponse({ status: 404, description: 'Role not found' })
   async updateRole(
     @Param('id') id: string,
     @Body() request: UpdateRoleRequest,
-  ): Promise<RoleResponse> {
+  ): Promise<ApiResponse<RoleResponse>> {
     const command = new UpdateRoleCommand(
       id,
       request.name,
@@ -103,6 +130,7 @@ export class RoleController {
       request.permissionIds,
     );
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+    return ApiResponse.success(result);
   }
 }

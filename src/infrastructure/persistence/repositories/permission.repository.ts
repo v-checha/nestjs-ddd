@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PermissionRepository } from '../../../domain/user/repositories/permission-repository.interface';
-import { Permission, PermissionAction } from '../../../domain/user/entities/permission.entity';
+import { Permission, PermissionAction, Resource } from '../../../domain/user/entities/permission.entity';
 import { PrismaService } from '../prisma/prisma.service';
 import { EntityDeleteException, EntitySaveException } from '../../../domain/common/exceptions/domain.exception';
 import { PrismaPermissionModel } from '../prisma/prisma.types';
+import { PaginatedResult } from '../../../domain/user/repositories/role-repository.interface';
 
 @Injectable()
 export class PrismaPermissionRepository implements PermissionRepository {
@@ -41,15 +42,45 @@ export class PrismaPermissionRepository implements PermissionRepository {
     }
   }
 
-  async findByResource(resource: string): Promise<Permission[]> {
+  async findByResource(resource: Resource): Promise<Permission[]> {
     try {
       const permissions = await this.prisma.permission.findMany({
-        where: { resource },
+        where: { resource: resource },
       });
       return permissions.map((permission) => this.mapToDomain(permission));
     } catch (error) {
       this.logger.error(`Error finding permissions by resource: ${error.message}`);
       return [];
+    }
+  }
+
+  async findByAction(action: PermissionAction): Promise<Permission[]> {
+    try {
+      const permissions = await this.prisma.permission.findMany({
+        where: { action: action },
+      });
+      return permissions.map((permission) => this.mapToDomain(permission));
+    } catch (error) {
+      this.logger.error(`Error finding permissions by action: ${error.message}`);
+      return [];
+    }
+  }
+
+  async findByResourceAndAction(resource: Resource, action: PermissionAction): Promise<Permission | null> {
+    try {
+      const permissionData = await this.prisma.permission.findFirst({
+        where: { 
+          resource: resource,
+          action: action
+        },
+      });
+
+      if (!permissionData) return null;
+
+      return this.mapToDomain(permissionData);
+    } catch (error) {
+      this.logger.error(`Error finding permission by resource and action: ${error.message}`);
+      return null;
     }
   }
 
@@ -80,13 +111,71 @@ export class PrismaPermissionRepository implements PermissionRepository {
     }
   }
 
-  async findAll(): Promise<Permission[]> {
+  async saveMany(permissions: Permission[]): Promise<void> {
     try {
-      const permissions = await this.prisma.permission.findMany();
-      return permissions.map((permission) => this.mapToDomain(permission));
+      // Start a transaction to save multiple permissions
+      await this.prisma.$transaction(async (prisma) => {
+        for (const permission of permissions) {
+          await prisma.permission.upsert({
+            where: { id: permission.id },
+            update: {
+              name: permission.name,
+              description: permission.description,
+              resource: permission.resource,
+              action: permission.action,
+              updatedAt: new Date(),
+            },
+            create: {
+              id: permission.id,
+              name: permission.name,
+              description: permission.description,
+              resource: permission.resource,
+              action: permission.action,
+              createdAt: permission.createdAt,
+              updatedAt: permission.updatedAt,
+            },
+          });
+        }
+      });
+    } catch (error) {
+      this.logger.error(`Error saving multiple permissions: ${error.message}`);
+      throw new EntitySaveException('Permission', error.message);
+    }
+  }
+
+  async findAll(page = 1, limit = 10): Promise<PaginatedResult<Permission>> {
+    try {
+      const skip = (page - 1) * limit;
+
+      // Get total count
+      const total = await this.prisma.permission.count();
+      
+      // Calculate total pages
+      const totalPages = Math.ceil(total / limit);
+      
+      // Get paginated data
+      const permissions = await this.prisma.permission.findMany({
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      });
+      
+      return {
+        data: permissions.map((permission) => this.mapToDomain(permission)),
+        total,
+        page,
+        limit,
+        totalPages,
+      };
     } catch (error) {
       this.logger.error(`Error finding all permissions: ${error.message}`);
-      return [];
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
+      };
     }
   }
 
@@ -105,7 +194,7 @@ export class PrismaPermissionRepository implements PermissionRepository {
     return Permission.create({
       name: permissionData.name,
       description: permissionData.description,
-      resource: permissionData.resource,
+      resource: permissionData.resource as Resource,
       action: permissionData.action as PermissionAction,
       createdAt: permissionData.createdAt,
       updatedAt: permissionData.updatedAt,

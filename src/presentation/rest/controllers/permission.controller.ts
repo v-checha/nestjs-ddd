@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -14,13 +16,17 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiQuery,
-  ApiResponse,
+  ApiResponse as SwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Resource } from '../../../domain/user/entities/permission.entity';
 import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../frameworks/nest/guards/permissions.guard';
+import { RequirePermissions, createPermissionString } from '../../../frameworks/nest/decorators/permissions.decorator';
 import { CreatePermissionRequest } from '../dtos/request/create-permission.request';
 import { UpdatePermissionRequest } from '../dtos/request/update-permission.request';
 import { PermissionResponse } from '../dtos/response/permission.response';
+import { ApiResponse } from '../dtos/response/api-response';
 import { CreatePermissionCommand } from '../../../application/user/commands/create-permission/create-permission.command';
 import { UpdatePermissionCommand } from '../../../application/user/commands/update-permission/update-permission.command';
 import { GetPermissionQuery } from '../../../application/user/queries/get-permission/get-permission.query';
@@ -37,75 +43,111 @@ export class PermissionController {
   ) {}
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(createPermissionString(Resource.PERMISSION, 'create' as any))
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new permission' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 201,
     description: 'Permission created successfully',
     type: PermissionResponse,
   })
   async createPermission(
     @Body() request: CreatePermissionRequest,
-  ): Promise<PermissionResponse> {
+  ): Promise<ApiResponse<PermissionResponse>> {
     const command = new CreatePermissionCommand(
       request.name,
       request.description,
-      request.resource,
+      request.resource as Resource,
       request.action,
     );
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+    return ApiResponse.success(result);
   }
 
   @Get()
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(createPermissionString(Resource.PERMISSION, 'read' as any))
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all permissions' })
   @ApiQuery({
     name: 'resource',
     required: false,
     description: 'Filter permissions by resource',
+    enum: Resource,
   })
-  @ApiResponse({
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number for pagination',
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page',
+    type: Number,
+  })
+  @SwaggerResponse({
     status: 200,
     description: 'List of permissions',
     type: [PermissionResponse],
   })
   async getPermissions(
-    @Query('resource') resource?: string,
-  ): Promise<PermissionResponse[]> {
-    return this.queryBus.execute(new ListPermissionsQuery(resource));
+    @Query('resource') resource?: Resource,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ): Promise<ApiResponse<PermissionResponse[]>> {
+    const result = await this.queryBus.execute(new ListPermissionsQuery(resource, page, limit));
+    return ApiResponse.success(result.data, {
+      currentPage: result.page,
+      totalPages: result.totalPages,
+      totalCount: result.total,
+      pageSize: result.limit,
+    });
   }
 
   @Get(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(createPermissionString(Resource.PERMISSION, 'read' as any))
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a permission by ID' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Permission found',
     type: PermissionResponse,
   })
-  @ApiResponse({ status: 404, description: 'Permission not found' })
-  async getPermission(@Param('id') id: string): Promise<PermissionResponse> {
-    return this.queryBus.execute(new GetPermissionQuery(id));
+  @SwaggerResponse({ status: 404, description: 'Permission not found' })
+  async getPermission(@Param('id') id: string): Promise<ApiResponse<PermissionResponse>> {
+    const result = await this.queryBus.execute(new GetPermissionQuery(id));
+    return ApiResponse.success(result);
   }
 
   @Put(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(createPermissionString(Resource.PERMISSION, 'update' as any))
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update a permission' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Permission updated successfully',
     type: PermissionResponse,
   })
-  @ApiResponse({ status: 404, description: 'Permission not found' })
+  @SwaggerResponse({ status: 404, description: 'Permission not found' })
   async updatePermission(
     @Param('id') id: string,
     @Body() request: UpdatePermissionRequest,
-  ): Promise<PermissionResponse> {
+  ): Promise<ApiResponse<PermissionResponse>> {
     const command = new UpdatePermissionCommand(
       id,
       request.name,
       request.description,
-      request.resource,
+      request.resource as Resource,
       request.action,
     );
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+    return ApiResponse.success(result);
   }
 }

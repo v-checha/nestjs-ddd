@@ -11,47 +11,49 @@ datasource db {
 }
 
 model User {
-  id                String            @id
-  email             String            @unique
-  firstName         String
-  lastName          String
-  password          String
-  isVerified        Boolean           @default(false)
-  lastLogin         DateTime?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  userRoles         UserRole[]
-  refreshTokens     RefreshToken[]
+  id                 String              @id
+  email              String              @unique
+  firstName          String
+  lastName           String
+  password           String
+  isVerified         Boolean             @default(false)
+  lastLogin          DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  userRoles          UserRole[]
+  refreshTokens      RefreshToken[]
   verificationTokens VerificationToken[]
 }
 
 model Permission {
-  id          String            @id
-  name        String            @unique
-  description String
-  resource    String
-  action      String
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id              String           @id
+  name            String           @unique
+  description     String
+  resource        String
+  action          String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   rolePermissions RolePermission[]
 }
 
 model Role {
-  id          String            @id
-  name        String            @unique
-  description String
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  userRoles   UserRole[]
+  id              String           @id
+  name            String           @unique
+  description     String
+  type            String           @default("user")
+  isDefault       Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  userRoles       UserRole[]
   rolePermissions RolePermission[]
 }
 
 model UserRole {
-  userId    String
-  roleId    String
+  userId     String
+  roleId     String
   assignedAt DateTime @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
 }
@@ -59,8 +61,8 @@ model UserRole {
 model RolePermission {
   roleId       String
   permissionId String
-  assignedAt   DateTime @default(now())
-  role         Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  assignedAt   DateTime   @default(now())
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
@@ -73,8 +75,8 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   issuedAt  DateTime @default(now())
   expiresAt DateTime
-  device    String?  // Optional device identifier
-  ipAddress String?  // Optional IP address
+  device    String? // Optional device identifier
+  ipAddress String? // Optional IP address
   isRevoked Boolean  @default(false)
 
   @@index([userId])
@@ -85,7 +87,7 @@ model VerificationToken {
   token     String   @unique
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      String   // 'email-verification' or 'password-reset'
+  type      String // 'email-verification' or 'password-reset'
   issuedAt  DateTime @default(now())
   expiresAt DateTime
   isUsed    Boolean  @default(false)
