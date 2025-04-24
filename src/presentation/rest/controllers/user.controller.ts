@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -16,6 +17,9 @@ import { ListUsersQuery } from '../../../application/user/queries/list-users/lis
 import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
 import { CreateUserRequest } from '../dtos/request/create-user.request';
 import { UserResponse } from '../dtos/response/user.response';
+import { AssignRoleToUserCommand } from '../../../application/user/commands/assign-role-to-user/assign-role-to-user.command';
+import { RemoveRoleFromUserCommand } from '../../../application/user/commands/remove-role-from-user/remove-role-from-user.command';
+import { AssignRoleRequest } from '../dtos/request/assign-role.request';
 
 @ApiTags('users')
 @Controller('users')
@@ -90,6 +94,47 @@ export class UserController {
       request.lastName,
       request.email,
     );
+
+    return this.commandBus.execute(command);
+  }
+
+  @Post(':id/roles')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Assign a role to a user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Role assigned to user successfully',
+    type: UserResponse,
+  })
+  @ApiResponse({ status: 404, description: 'User or role not found' })
+  async assignRole(
+    @Param('id') userId: string,
+    @Body() request: AssignRoleRequest,
+  ): Promise<UserResponse> {
+    const command = new AssignRoleToUserCommand(
+      userId,
+      request.roleId,
+    );
+
+    return this.commandBus.execute(command);
+  }
+
+  @Delete(':userId/roles/:roleId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Remove a role from a user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Role removed from user successfully',
+    type: UserResponse,
+  })
+  @ApiResponse({ status: 404, description: 'User or role not found' })
+  async removeRole(
+    @Param('userId') userId: string,
+    @Param('roleId') roleId: string,
+  ): Promise<UserResponse> {
+    const command = new RemoveRoleFromUserCommand(userId, roleId);
 
     return this.commandBus.execute(command);
   }

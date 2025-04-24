@@ -11,11 +11,53 @@ datasource db {
 }
 
 model User {
-  id        String   @id
-  email     String   @unique
+  id        String       @id
+  email     String       @unique
   firstName String
   lastName  String
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  userRoles UserRole[]
+}
+
+model Permission {
+  id          String            @id
+  name        String            @unique
+  description String
+  resource    String
+  action      String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  rolePermissions RolePermission[]
+}
+
+model Role {
+  id          String            @id
+  name        String            @unique
+  description String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  userRoles   UserRole[]
+  rolePermissions RolePermission[]
+}
+
+model UserRole {
+  userId    String
+  roleId    String
+  assignedAt DateTime @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  assignedAt   DateTime @default(now())
+  role         Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
 }

@@ -32,6 +32,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand, Use
       firstName: command.firstName,
       lastName: command.lastName,
       password: command.password, // In a real app, hash the password first
+      roles: [],
     });
 
     // Save the user

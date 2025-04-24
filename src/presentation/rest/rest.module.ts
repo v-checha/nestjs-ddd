@@ -1,6 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UserController } from './controllers/user.controller';
+import { RoleController } from './controllers/role.controller';
+import { PermissionController } from './controllers/permission.controller';
 import { UserApplicationModule } from '../../application/user/application.module';
 import { AuthModule } from '../../infrastructure/authentication/auth.module';
 import { AuthMiddleware } from './middlewares/auth.middleware';
@@ -11,7 +13,7 @@ import { AuthMiddleware } from './middlewares/auth.middleware';
     UserApplicationModule,
     AuthModule,
   ],
-  controllers: [UserController],
+  controllers: [UserController, RoleController, PermissionController],
 })
 export class RestModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

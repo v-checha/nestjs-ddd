@@ -4,6 +4,8 @@ import { User } from '../../../domain/user/entities/user.entity';
 import { Email } from '../../../domain/user/value-objects/email.vo';
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 import { PrismaService } from '../prisma/prisma.service';
+import { Role } from '../../../domain/user/entities/role.entity';
+import { Permission, PermissionAction } from '../../../domain/user/entities/permission.entity';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -15,6 +17,21 @@ export class UserRepository implements IUserRepository {
     try {
       const userData = await this.prisma.user.findUnique({
         where: { id: id.value },
+        include: {
+          userRoles: {
+            include: {
+              role: {
+                include: {
+                  rolePermissions: {
+                    include: {
+                      permission: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!userData) return null;
@@ -30,6 +47,21 @@ export class UserRepository implements IUserRepository {
     try {
       const userData = await this.prisma.user.findUnique({
         where: { email: email.value },
+        include: {
+          userRoles: {
+            include: {
+              role: {
+                include: {
+                  rolePermissions: {
+                    include: {
+                      permission: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!userData) return null;
@@ -43,24 +75,63 @@ export class UserRepository implements IUserRepository {
 
   async save(user: User): Promise<void> {
     try {
-      await this.prisma.user.upsert({
-        where: { id: user.id },
-        update: {
-          email: user.email.value,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          password: user.password,
-          updatedAt: user.updatedAt,
-        },
-        create: {
-          id: user.id,
-          email: user.email.value,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          password: user.password,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
+      // Start a transaction to handle user and role/permission relationships
+      await this.prisma.$transaction(async (prisma) => {
+        // Upsert the user
+        await prisma.user.upsert({
+          where: { id: user.id },
+          update: {
+            email: user.email.value,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            password: user.password,
+            updatedAt: user.updatedAt,
+          },
+          create: {
+            id: user.id,
+            email: user.email.value,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            password: user.password,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+          },
+        });
+
+        // Delete existing role assignments that are no longer assigned
+        const existingRoleIds = user.roles.map(role => role.id);
+        if (existingRoleIds.length > 0) {
+          await prisma.userRole.deleteMany({
+            where: {
+              userId: user.id,
+              NOT: {
+                roleId: { in: existingRoleIds }
+              }
+            }
+          });
+        } else {
+          // If no roles are assigned, remove all roles
+          await prisma.userRole.deleteMany({
+            where: { userId: user.id }
+          });
+        }
+
+        // Create new role assignments
+        for (const role of user.roles) {
+          await prisma.userRole.upsert({
+            where: {
+              userId_roleId: {
+                userId: user.id,
+                roleId: role.id,
+              },
+            },
+            update: {},  // No updates needed for the relationship
+            create: {
+              userId: user.id,
+              roleId: role.id,
+            },
+          });
+        }
       });
     } catch (error) {
       this.logger.error(`Error saving user: ${error.message}`);
@@ -70,7 +141,23 @@ export class UserRepository implements IUserRepository {
 
   async findAll(): Promise<User[]> {
     try {
-      const users = await this.prisma.user.findMany();
+      const users = await this.prisma.user.findMany({
+        include: {
+          userRoles: {
+            include: {
+              role: {
+                include: {
+                  rolePermissions: {
+                    include: {
+                      permission: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
       return users.map((user) => this.mapToDomain(user));
     } catch (error) {
       this.logger.error(`Error finding all users: ${error.message}`);
@@ -90,12 +177,39 @@ export class UserRepository implements IUserRepository {
   }
 
   private mapToDomain(userData: any): User {
+    // Map the roles and their permissions
+    const roles = userData.userRoles?.map((userRole: any) => {
+      const roleData = userRole.role;
+      
+      // Map the permissions
+      const permissions = roleData.rolePermissions?.map((rolePermission: any) => {
+        const permissionData = rolePermission.permission;
+        return Permission.create({
+          name: permissionData.name,
+          description: permissionData.description,
+          resource: permissionData.resource,
+          action: permissionData.action as PermissionAction,
+          createdAt: permissionData.createdAt,
+          updatedAt: permissionData.updatedAt,
+        }, permissionData.id);
+      }) || [];
+      
+      return Role.create({
+        name: roleData.name,
+        description: roleData.description,
+        permissions: permissions,
+        createdAt: roleData.createdAt,
+        updatedAt: roleData.updatedAt,
+      }, roleData.id);
+    }) || [];
+    
     return User.create(
       {
         email: Email.create(userData.email),
         firstName: userData.firstName,
         lastName: userData.lastName,
         password: userData.password,
+        roles: roles,
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
       },

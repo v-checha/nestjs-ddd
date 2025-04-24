@@ -2,12 +2,14 @@ import { AggregateRoot } from '../../common/base/aggregate-root';
 import { UserId } from '../value-objects/user-id.vo';
 import { Email } from '../value-objects/email.vo';
 import { UserCreatedEvent } from '../events/user-created.event';
+import { Role } from './role.entity';
 
 interface UserProps {
   email: Email;
   firstName: string;
   lastName: string;
   password: string;
+  roles: Role[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -49,10 +51,15 @@ export class User extends AggregateRoot<UserProps> {
     return this.props.updatedAt ?? new Date();
   }
 
+  get roles(): Role[] {
+    return this.props.roles;
+  }
+
   public static create(props: UserProps, id?: string): User {
     const user = new User(
       {
         ...props,
+        roles: props.roles || [],
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
@@ -81,5 +88,27 @@ export class User extends AggregateRoot<UserProps> {
   public updatePassword(password: string): void {
     this.props.password = password;
     this.props.updatedAt = new Date();
+  }
+
+  public assignRole(role: Role): void {
+    if (!this.hasRole(role.id)) {
+      this.props.roles.push(role);
+      this.props.updatedAt = new Date();
+    }
+  }
+
+  public removeRole(roleId: string): void {
+    this.props.roles = this.props.roles.filter((role) => role.id !== roleId);
+    this.props.updatedAt = new Date();
+  }
+
+  public hasRole(roleId: string): boolean {
+    return this.props.roles.some((role) => role.id === roleId);
+  }
+
+  public hasPermission(permissionId: string): boolean {
+    return this.props.roles.some(role => 
+      role.permissions.some(permission => permission.id === permissionId)
+    );
   }
 }
