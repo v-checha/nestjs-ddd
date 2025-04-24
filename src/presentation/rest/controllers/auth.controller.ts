@@ -2,13 +2,14 @@ import {
   Body,
   Controller,
   Post,
-  Request,
+  HttpCode,
+  HttpStatus,
   UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Public } from '../../../frameworks/nest/decorators/public.decorator';
 import { CommandBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse as SwaggerResponse, ApiTags } from '@nestjs/swagger';
 import { LoginCommand } from '../../../application/user/commands/login/login.command';
 import { RegisterCommand } from '../../../application/user/commands/register/register.command';
 import { ForgotPasswordCommand } from '../../../application/user/commands/forgot-password/forgot-password.command';
@@ -26,6 +27,7 @@ import { RefreshTokenRequest } from '../dtos/request/refresh-token.request';
 import { LogoutRequest } from '../dtos/request/logout.request';
 import { AuthTokenResponse } from '../dtos/response/auth-token.response';
 import { UserResponse } from '../dtos/response/user.response';
+import { ApiResponse } from '../dtos/response/api-response';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -36,14 +38,15 @@ export class AuthController {
 
   @Post('register')
   @Public()
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 201,
     description: 'User registered successfully',
     type: UserResponse,
   })
-  @ApiResponse({ status: 400, description: 'Invalid input or email already exists' })
-  async register(@Body() request: RegisterRequest): Promise<UserResponse> {
+  @SwaggerResponse({ status: 400, description: 'Invalid input or email already exists' })
+  async register(@Body() request: RegisterRequest): Promise<ApiResponse<UserResponse>> {
     const command = new RegisterCommand(
       request.email,
       request.firstName,
@@ -51,40 +54,45 @@ export class AuthController {
       request.password,
     );
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+    return ApiResponse.success(result);
   }
 
   @Post('login')
   @Public()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email and password' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Login successful',
     type: AuthTokenResponse,
   })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  async login(@Body() request: LoginRequest): Promise<AuthTokenResponse> {
+  @SwaggerResponse({ status: 401, description: 'Invalid credentials' })
+  async login(@Body() request: LoginRequest): Promise<ApiResponse<AuthTokenResponse>> {
     const command = new LoginCommand(
       request.email,
       request.password,
     );
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+    return ApiResponse.success(result);
   }
 
   @Post('verify-email')
   @Public()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify email address' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Email verified successfully',
     type: UserResponse,
   })
-  @ApiResponse({ status: 400, description: 'Invalid token' })
-  async verifyEmail(@Body() request: VerifyEmailRequest): Promise<UserResponse> {
+  @SwaggerResponse({ status: 400, description: 'Invalid token' })
+  async verifyEmail(@Body() request: VerifyEmailRequest): Promise<ApiResponse<UserResponse>> {
     try {
       const command = new VerifyEmailCommand(request.token);
-      return this.commandBus.execute(command);
+      const result = await this.commandBus.execute(command);
+      return ApiResponse.success(result);
     } catch (error) {
       throw new UnauthorizedException('Invalid or expired verification token');
     }
@@ -92,32 +100,36 @@ export class AuthController {
 
   @Post('forgot-password')
   @Public()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Password reset email sent if account exists',
   })
-  async forgotPassword(@Body() request: ForgotPasswordRequest): Promise<void> {
+  async forgotPassword(@Body() request: ForgotPasswordRequest): Promise<ApiResponse<null>> {
     const command = new ForgotPasswordCommand(request.email);
     await this.commandBus.execute(command);
+    return ApiResponse.success(null, { message: 'Password reset email sent' });
   }
 
   @Post('reset-password')
   @Public()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password with token' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Password reset successfully',
     type: UserResponse,
   })
-  @ApiResponse({ status: 400, description: 'Invalid token' })
-  async resetPassword(@Body() request: ResetPasswordRequest): Promise<UserResponse> {
+  @SwaggerResponse({ status: 400, description: 'Invalid token' })
+  async resetPassword(@Body() request: ResetPasswordRequest): Promise<ApiResponse<UserResponse>> {
     try {
       const command = new ResetPasswordCommand(
         request.token,
         request.newPassword,
       );
-      return this.commandBus.execute(command);
+      const result = await this.commandBus.execute(command);
+      return ApiResponse.success(result);
     } catch (error) {
       throw new UnauthorizedException('Invalid or expired reset token');
     }
@@ -125,17 +137,19 @@ export class AuthController {
 
   @Post('refresh-token')
   @Public()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh authentication token' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Token refreshed successfully',
     type: AuthTokenResponse,
   })
-  @ApiResponse({ status: 401, description: 'Invalid refresh token' })
-  async refreshToken(@Body() request: RefreshTokenRequest): Promise<AuthTokenResponse> {
+  @SwaggerResponse({ status: 401, description: 'Invalid refresh token' })
+  async refreshToken(@Body() request: RefreshTokenRequest): Promise<ApiResponse<AuthTokenResponse>> {
     try {
       const command = new RefreshTokenCommand(request.refreshToken);
-      return this.commandBus.execute(command);
+      const result = await this.commandBus.execute(command);
+      return ApiResponse.success(result);
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -143,13 +157,15 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Logout and invalidate refresh token' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Logout successful',
   })
-  async logout(@Body() request: LogoutRequest): Promise<void> {
+  async logout(@Body() request: LogoutRequest): Promise<ApiResponse<null>> {
     const command = new LogoutCommand(request.refreshToken);
     await this.commandBus.execute(command);
+    return ApiResponse.success(null, { message: 'Logout successful' });
   }
 }

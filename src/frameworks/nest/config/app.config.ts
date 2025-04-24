@@ -1,9 +1,9 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { HttpExceptionFilter } from '../filters/http-exception.filter';
 import { LoggingInterceptor } from '../interceptors/logging.interceptor';
-import { TransformInterceptor } from '../interceptors/transform.interceptor';
+import { HttpResponseInterceptor } from '../interceptors/http-response.interceptor';
+import { ApiExceptionFilter } from '../filters/api-exception.filter';
 
 export function setupApp(app: INestApplication) {
   const configService = app.get(ConfigService);
@@ -13,11 +13,15 @@ export function setupApp(app: INestApplication) {
   app.setGlobalPrefix(apiPrefix);
 
   // Apply global pipes, filters, and interceptors
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalPipes(new ValidationPipe({ 
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true
+  }));
+  app.useGlobalFilters(new ApiExceptionFilter());
   app.useGlobalInterceptors(
     new LoggingInterceptor(),
-    new TransformInterceptor(),
+    new HttpResponseInterceptor(),
   );
 
   return app;

@@ -31,7 +31,8 @@ export class UserController {
   ) {}
 
   @Post()
-  @Public()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({
     status: 201,
