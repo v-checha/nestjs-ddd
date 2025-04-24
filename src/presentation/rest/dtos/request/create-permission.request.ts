@@ -1,7 +1,7 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { ResourceType } from '../../../../domain/user/value-objects/resource.vo';
-import { ActionType } from '../../../../domain/user/value-objects/permission-action.vo';
+import { ResourceType } from '@domain/user/value-objects/resource.vo';
+import { ActionType } from '@domain/user/value-objects/permission-action.vo';
 
 export class CreatePermissionRequest {
   @ApiProperty({

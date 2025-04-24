@@ -11,9 +11,9 @@ import {
   ApiResponse,
   ErrorDetail,
   Meta,
-} from '../../../presentation/rest/dtos/response/api-response';
-import { ApplicationException } from '../../../application/common/exceptions/application.exception';
-import { DomainException } from '../../../domain/common/exceptions/domain.exception';
+} from '@presentation/rest/dtos/response/api-response';
+import { ApplicationException } from '@application/common/exceptions/application.exception';
+import { DomainException } from '@domain/common/exceptions/domain.exception';
 import { ValidationError } from 'class-validator';
 
 @Catch()

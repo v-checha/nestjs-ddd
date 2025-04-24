@@ -7,21 +7,21 @@ import {
   ApiResponse as SwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ResourceType } from '../../../domain/user/value-objects/resource.vo';
-import { ActionType } from '../../../domain/user/value-objects/permission-action.vo';
-import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../../../frameworks/nest/guards/permissions.guard';
+import { ResourceType } from '@domain/user/value-objects/resource.vo';
+import { ActionType } from '@domain/user/value-objects/permission-action.vo';
+import { JwtAuthGuard } from '@frameworks/nest/guards/jwt-auth.guard';
+import { PermissionsGuard } from '@frameworks/nest/guards/permissions.guard';
 import {
   RequirePermissions,
   createPermissionString,
-} from '../../../frameworks/nest/decorators/permissions.decorator';
+} from '@frameworks/nest/decorators/permissions.decorator';
 import { CreateRoleRequest } from '../dtos/request/create-role.request';
 import { UpdateRoleRequest } from '../dtos/request/update-role.request';
 import { RoleResponse } from '../dtos/response/role.response';
-import { CreateRoleCommand } from '../../../application/user/commands/create-role/create-role.command';
-import { UpdateRoleCommand } from '../../../application/user/commands/update-role/update-role.command';
-import { GetRoleQuery } from '../../../application/user/queries/get-role/get-role.query';
-import { ListRolesQuery } from '../../../application/user/queries/list-roles/list-roles.query';
+import { CreateRoleCommand } from '@application/user/commands/create-role/create-role.command';
+import { UpdateRoleCommand } from '@application/user/commands/update-role/update-role.command';
+import { GetRoleQuery } from '@application/user/queries/get-role/get-role.query';
+import { ListRolesQuery } from '@application/user/queries/list-roles/list-roles.query';
 import { ApiResponse } from '../dtos/response/api-response';
 
 @ApiTags('roles')

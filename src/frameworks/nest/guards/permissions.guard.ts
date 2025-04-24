@@ -7,11 +7,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserRepository } from '../../../domain/user/repositories/user-repository.interface';
-import { UserId } from '../../../domain/user/value-objects/user-id.vo';
+import { UserRepository } from '@domain/user/repositories/user-repository.interface';
+import { UserId } from '@domain/user/value-objects/user-id.vo';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
-import { Resource } from '../../../domain/user/value-objects/resource.vo';
-import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
+import { Resource } from '@domain/user/value-objects/resource.vo';
+import { PermissionAction } from '@domain/user/value-objects/permission-action.vo';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {

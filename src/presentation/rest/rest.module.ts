@@ -4,11 +4,11 @@ import { UserController } from './controllers/user.controller';
 import { RoleController } from './controllers/role.controller';
 import { PermissionController } from './controllers/permission.controller';
 import { AuthController } from './controllers/auth.controller';
-import { UserApplicationModule } from '../../application/user/application.module';
-import { AuthModule } from '../../infrastructure/authentication/auth.module';
+import { UserApplicationModule } from '@application/user/application.module';
+import { AuthModule } from '@infrastructure/authentication/auth.module';
 import { AuthMiddleware } from './middlewares/auth.middleware';
-import { GuardsModule } from '../../frameworks/nest/modules/guards.module';
-import { UserModule } from '../../frameworks/nest/modules/user.module';
+import { GuardsModule } from '@frameworks/nest/modules/guards.module';
+import { UserModule } from '@frameworks/nest/modules/user.module';
 
 @Module({
   imports: [CqrsModule, UserApplicationModule, AuthModule, GuardsModule, UserModule],

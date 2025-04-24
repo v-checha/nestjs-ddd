@@ -1,18 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { UserRepository } from '../../../domain/user/repositories/user-repository.interface';
-import { User } from '../../../domain/user/entities/user.entity';
-import { Email } from '../../../domain/user/value-objects/email.vo';
-import { UserId } from '../../../domain/user/value-objects/user-id.vo';
+import { UserRepository } from '@domain/user/repositories/user-repository.interface';
+import { User } from '@domain/user/entities/user.entity';
+import { Email } from '@domain/user/value-objects/email.vo';
+import { UserId } from '@domain/user/value-objects/user-id.vo';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role } from '../../../domain/user/entities/role.entity';
-import { Permission } from '../../../domain/user/entities/permission.entity';
-import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
-import { Resource } from '../../../domain/user/value-objects/resource.vo';
-import { RoleType } from '../../../domain/user/value-objects/role-type.vo';
+import { Role } from '@domain/user/entities/role.entity';
+import { Permission } from '@domain/user/entities/permission.entity';
+import { PermissionAction } from '@domain/user/value-objects/permission-action.vo';
+import { Resource } from '@domain/user/value-objects/resource.vo';
+import { RoleType } from '@domain/user/value-objects/role-type.vo';
 import {
   EntityDeleteException,
   EntitySaveException,
-} from '../../../domain/common/exceptions/domain.exception';
+} from '@domain/common/exceptions/domain.exception';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {

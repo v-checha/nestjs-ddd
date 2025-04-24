@@ -2,8 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreatePermissionCommand } from './create-permission.command';
 import { PermissionDto } from '../../dtos/permission.dto';
 import { Inject } from '@nestjs/common';
-import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
-import { Permission } from '../../../../domain/user/entities/permission.entity';
+import { PermissionRepository } from '@domain/user/repositories/permission-repository.interface';
+import { Permission } from '@domain/user/entities/permission.entity';
 import { PermissionMapper } from '../../mappers/permission.mapper';
 import { PermissionAlreadyExistsException } from '../../../common/exceptions/application.exception';
 

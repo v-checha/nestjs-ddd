@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetUserQuery } from './get-user.query';
 import { UserDto } from '../../dtos/user.dto';
-import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
-import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
+import { UserRepository } from '@domain/user/repositories/user-repository.interface';
+import { UserId } from '@domain/user/value-objects/user-id.vo';
 import { UserMapper } from '../../mappers/user.mapper';
 import { Inject } from '@nestjs/common';
 import { UserNotFoundException } from '../../../common/exceptions/application.exception';

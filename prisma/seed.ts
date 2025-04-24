@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
-import { ResourceType } from '../src/domain/user/value-objects/resource.vo';
-import { ActionType } from '../src/domain/user/value-objects/permission-action.vo';
-import { RoleTypeEnum } from '../src/domain/user/value-objects/role-type.vo';
+import { ResourceType } from '@domain/user/value-objects/resource.vo';
+import { ActionType } from '@domain/user/value-objects/permission-action.vo';
+import { RoleTypeEnum } from '@domain/user/value-objects/role-type.vo';
 
 const prisma = new PrismaClient();
 
@@ -55,13 +55,13 @@ const roleDefinitions = [
 // Create all possible permissions
 function generatePermissions() {
   const permissions = [];
-  
+
   for (const resource of Object.values(ResourceType)) {
     for (const action of Object.values(ActionType)) {
       const id = uuidv4();
       const name = `${resource}:${action}`;
       const description = `Permission to ${action} ${resource}`;
-      
+
       permissions.push({
         id,
         name,
@@ -71,7 +71,7 @@ function generatePermissions() {
       });
     }
   }
-  
+
   return permissions;
 }
 
@@ -102,7 +102,7 @@ const defaultUsers = [
 const rolePermissionMap = {
   'Super Administrator': Object.values(ResourceType),
   'Administrator': [
-    ResourceType.USER, ResourceType.ROLE, ResourceType.PERMISSION, 
+    ResourceType.USER, ResourceType.ROLE, ResourceType.PERMISSION,
     ResourceType.SETTINGS, ResourceType.ANALYTICS, ResourceType.AUDIT
   ],
   'Moderator': [
@@ -117,10 +117,10 @@ const rolePermissionMap = {
 
 async function main() {
   console.log('Starting database seed...');
-  
+
   // Generate all permissions
   const permissions = generatePermissions();
-  
+
   // Create permissions in database
   console.log(`Creating ${permissions.length} permissions...`);
   for (const permission of permissions) {
@@ -130,7 +130,7 @@ async function main() {
       create: permission,
     });
   }
-  
+
   // Create roles in database
   console.log(`Creating ${roleDefinitions.length} roles...`);
   for (const role of roleDefinitions) {
@@ -183,17 +183,17 @@ async function main() {
   for (const user of defaultUsers) {
     // Hash password
     const hashedPassword = await bcrypt.hash(user.password, SALT_ROUNDS);
-    
+
     // Get associated role
     const role = await prisma.role.findUnique({
       where: { name: user.roleName },
     });
-    
+
     if (!role) {
       console.error(`Role "${user.roleName}" not found for user ${user.email}.`);
       continue;
     }
-    
+
     // Create user
     const createdUser = await prisma.user.upsert({
       where: { email: user.email },
@@ -212,7 +212,7 @@ async function main() {
         isVerified: user.isVerified,
       },
     });
-    
+
     // Assign role to user
     await prisma.userRole.upsert({
       where: {
@@ -228,7 +228,7 @@ async function main() {
       },
     });
   }
-  
+
   console.log('Database seeding completed successfully!');
 }
 

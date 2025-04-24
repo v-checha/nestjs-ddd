@@ -2,17 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import {
   PaginatedResult,
   RoleRepository,
-} from '../../../domain/user/repositories/role-repository.interface';
-import { Role } from '../../../domain/user/entities/role.entity';
-import { RoleType } from '../../../domain/user/value-objects/role-type.vo';
-import { Permission } from '../../../domain/user/entities/permission.entity';
-import { Resource } from '../../../domain/user/value-objects/resource.vo';
-import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
+} from '@domain/user/repositories/role-repository.interface';
+import { Role } from '@domain/user/entities/role.entity';
+import { RoleType } from '@domain/user/value-objects/role-type.vo';
+import { Permission } from '@domain/user/entities/permission.entity';
+import { Resource } from '@domain/user/value-objects/resource.vo';
+import { PermissionAction } from '@domain/user/value-objects/permission-action.vo';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   EntityDeleteException,
   EntitySaveException,
-} from '../../../domain/common/exceptions/domain.exception';
+} from '@domain/common/exceptions/domain.exception';
 
 @Injectable()
 export class PrismaRoleRepository implements RoleRepository {

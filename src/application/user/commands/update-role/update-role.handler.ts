@@ -2,8 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateRoleCommand } from './update-role.command';
 import { RoleDto } from '../../dtos/role.dto';
 import { Inject } from '@nestjs/common';
-import { RoleRepository } from '../../../../domain/user/repositories/role-repository.interface';
-import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
+import { RoleRepository } from '@domain/user/repositories/role-repository.interface';
+import { PermissionRepository } from '@domain/user/repositories/permission-repository.interface';
 import { RoleMapper } from '../../mappers/role.mapper';
 
 @CommandHandler(UpdateRoleCommand)

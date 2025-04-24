@@ -1,12 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateUserCommand } from './update-user.command';
 import { UserDto } from '../../dtos/user.dto';
-import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
-import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
+import { UserRepository } from '@domain/user/repositories/user-repository.interface';
+import { UserId } from '@domain/user/value-objects/user-id.vo';
 import { UserMapper } from '../../mappers/user.mapper';
 import { Inject } from '@nestjs/common';
 import { UserNotFoundException } from '../../../common/exceptions/application.exception';
-import { Email } from '../../../../domain/user/value-objects/email.vo';
+import { Email } from '@domain/user/value-objects/email.vo';
 
 @CommandHandler(UpdateUserCommand)
 export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, UserDto> {

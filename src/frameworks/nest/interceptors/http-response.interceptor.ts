@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiResponse, Meta, Links } from '../../../presentation/rest/dtos/response/api-response';
+import { ApiResponse, Meta, Links } from '@presentation/rest/dtos/response/api-response';
 import { Request } from 'express';
 
 @Injectable()

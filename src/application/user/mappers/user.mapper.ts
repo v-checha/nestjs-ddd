@@ -1,4 +1,4 @@
-import { User } from '../../../domain/user/entities/user.entity';
+import { User } from '@domain/user/entities/user.entity';
 import { UserDto } from '../dtos/user.dto';
 import { Injectable } from '@nestjs/common';
 import { RoleMapper } from './role.mapper';

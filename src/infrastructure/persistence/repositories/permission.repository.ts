@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PermissionRepository } from '../../../domain/user/repositories/permission-repository.interface';
-import { Permission } from '../../../domain/user/entities/permission.entity';
-import { Resource } from '../../../domain/user/value-objects/resource.vo';
-import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
+import { PermissionRepository } from '@domain/user/repositories/permission-repository.interface';
+import { Permission } from '@domain/user/entities/permission.entity';
+import { Resource } from '@domain/user/value-objects/resource.vo';
+import { PermissionAction } from '@domain/user/value-objects/permission-action.vo';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   EntityDeleteException,
   EntitySaveException,
-} from '../../../domain/common/exceptions/domain.exception';
+} from '@domain/common/exceptions/domain.exception';
 import { PrismaPermissionModel } from '../prisma/prisma.types';
-import { PaginatedResult } from '../../../domain/user/repositories/role-repository.interface';
+import { PaginatedResult } from '@domain/user/repositories/role-repository.interface';
 
 @Injectable()
 export class PrismaPermissionRepository implements PermissionRepository {

@@ -5,7 +5,7 @@ import { Inject } from '@nestjs/common';
 import {
   PaginatedResult,
   RoleRepository,
-} from '../../../../domain/user/repositories/role-repository.interface';
+} from '@domain/user/repositories/role-repository.interface';
 import { RoleMapper } from '../../mappers/role.mapper';
 
 @QueryHandler(ListRolesQuery)

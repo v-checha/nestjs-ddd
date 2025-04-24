@@ -1,15 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateUserCommand } from '../../../application/user/commands/create-user/create-user.command';
-import { UpdateUserCommand } from '../../../application/user/commands/update-user/update-user.command';
-import { GetUserQuery } from '../../../application/user/queries/get-user/get-user.query';
-import { ListUsersQuery } from '../../../application/user/queries/list-users/list-users.query';
-import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
+import { CreateUserCommand } from '@application/user/commands/create-user/create-user.command';
+import { UpdateUserCommand } from '@application/user/commands/update-user/update-user.command';
+import { GetUserQuery } from '@application/user/queries/get-user/get-user.query';
+import { ListUsersQuery } from '@application/user/queries/list-users/list-users.query';
+import { JwtAuthGuard } from '@frameworks/nest/guards/jwt-auth.guard';
 import { CreateUserRequest } from '../dtos/request/create-user.request';
 import { UserResponse } from '../dtos/response/user.response';
-import { AssignRoleToUserCommand } from '../../../application/user/commands/assign-role-to-user/assign-role-to-user.command';
-import { RemoveRoleFromUserCommand } from '../../../application/user/commands/remove-role-from-user/remove-role-from-user.command';
+import { AssignRoleToUserCommand } from '@application/user/commands/assign-role-to-user/assign-role-to-user.command';
+import { RemoveRoleFromUserCommand } from '@application/user/commands/remove-role-from-user/remove-role-from-user.command';
 import { AssignRoleRequest } from '../dtos/request/assign-role.request';
 
 @ApiTags('users')

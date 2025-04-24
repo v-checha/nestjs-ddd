@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { UserDomainModule } from '../../domain/user/domain.module';
-import { UserModule } from '../../frameworks/nest/modules/user.module';
-import { AuthModule } from '../../infrastructure/authentication/auth.module';
-import { ServicesModule } from '../../infrastructure/services/services.module';
+import { UserDomainModule } from '@domain/user/domain.module';
+import { UserModule } from '@frameworks/nest/modules/user.module';
+import { AuthModule } from '@infrastructure/authentication/auth.module';
+import { ServicesModule } from '@infrastructure/services/services.module';
 
 // Mappers
 import { UserMapper } from './mappers/user.mapper';

@@ -5,15 +5,15 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   VerificationToken,
   VerificationTokenType,
-} from '../../domain/user/entities/verification-token.entity';
-import { RefreshToken } from '../../domain/user/entities/refresh-token.entity';
-import { VerificationTokenRepository } from '../../domain/user/repositories/verification-token-repository.interface';
-import { RefreshTokenRepository } from '../../domain/user/repositories/refresh-token-repository.interface';
+} from '@domain/user/entities/verification-token.entity';
+import { RefreshToken } from '@domain/user/entities/refresh-token.entity';
+import { VerificationTokenRepository } from '@domain/user/repositories/verification-token-repository.interface';
+import { RefreshTokenRepository } from '@domain/user/repositories/refresh-token-repository.interface';
 import { add } from 'date-fns';
 import {
   TokenExpiredException,
   TokenNotFoundException,
-} from '../../application/common/exceptions/application.exception';
+} from '@application/common/exceptions/application.exception';
 
 @Injectable()
 export class TokenService {

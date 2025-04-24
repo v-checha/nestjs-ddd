@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LoginCommand } from './login.command';
 import { Inject, UnauthorizedException } from '@nestjs/common';
-import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
-import { Email } from '../../../../domain/user/value-objects/email.vo';
-import { JwtAuthService } from '../../../../infrastructure/authentication/jwt-auth.service';
-import { PasswordService } from '../../../../infrastructure/services/password.service';
-import { TokenService } from '../../../../infrastructure/services/token.service';
+import { UserRepository } from '@domain/user/repositories/user-repository.interface';
+import { Email } from '@domain/user/value-objects/email.vo';
+import { JwtAuthService } from '@infrastructure/authentication/jwt-auth.service';
+import { PasswordService } from '@infrastructure/services/password.service';
+import { TokenService } from '@infrastructure/services/token.service';
 import { AuthTokenDto } from '../../dtos/auth-token.dto';
 
 @CommandHandler(LoginCommand)

@@ -6,8 +6,8 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserRepository } from '../../../domain/user/repositories/user-repository.interface';
-import { UserId } from '../../../domain/user/value-objects/user-id.vo';
+import { UserRepository } from '@domain/user/repositories/user-repository.interface';
+import { UserId } from '@domain/user/value-objects/user-id.vo';
 
 @Injectable()
 export class RolesGuard implements CanActivate {

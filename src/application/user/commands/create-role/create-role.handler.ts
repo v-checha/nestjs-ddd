@@ -2,11 +2,11 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateRoleCommand } from './create-role.command';
 import { RoleDto } from '../../dtos/role.dto';
 import { Inject } from '@nestjs/common';
-import { RoleRepository } from '../../../../domain/user/repositories/role-repository.interface';
-import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
-import { Role } from '../../../../domain/user/entities/role.entity';
+import { RoleRepository } from '@domain/user/repositories/role-repository.interface';
+import { PermissionRepository } from '@domain/user/repositories/permission-repository.interface';
+import { Role } from '@domain/user/entities/role.entity';
 import { RoleMapper } from '../../mappers/role.mapper';
-import { InvalidRoleException } from '../../../../domain/common/exceptions/domain.exception';
+import { InvalidRoleException } from '@domain/common/exceptions/domain.exception';
 
 @CommandHandler(CreateRoleCommand)
 export class CreateRoleHandler implements ICommandHandler<CreateRoleCommand, RoleDto> {

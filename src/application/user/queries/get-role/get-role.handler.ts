@@ -2,9 +2,9 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetRoleQuery } from './get-role.query';
 import { RoleDto } from '../../dtos/role.dto';
 import { Inject } from '@nestjs/common';
-import { RoleRepository } from '../../../../domain/user/repositories/role-repository.interface';
+import { RoleRepository } from '@domain/user/repositories/role-repository.interface';
 import { RoleMapper } from '../../mappers/role.mapper';
-import { EntityNotFoundException } from '../../../../domain/common/exceptions/domain.exception';
+import { EntityNotFoundException } from '@domain/common/exceptions/domain.exception';
 
 @QueryHandler(GetRoleQuery)
 export class GetRoleHandler implements IQueryHandler<GetRoleQuery, RoleDto> {

@@ -3,8 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   VerificationToken,
   VerificationTokenType,
-} from '../../../domain/user/entities/verification-token.entity';
-import { VerificationTokenRepository } from '../../../domain/user/repositories/verification-token-repository.interface';
+} from '@domain/user/entities/verification-token.entity';
+import { VerificationTokenRepository } from '@domain/user/repositories/verification-token-repository.interface';
 
 @Injectable()
 export class PrismaVerificationTokenRepository implements VerificationTokenRepository {

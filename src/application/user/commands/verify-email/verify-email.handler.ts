@@ -1,13 +1,13 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { VerifyEmailCommand } from './verify-email.command';
 import { Inject, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
-import { VerificationTokenRepository } from '../../../../domain/user/repositories/verification-token-repository.interface';
-import { TokenService } from '../../../../infrastructure/services/token.service';
+import { UserRepository } from '@domain/user/repositories/user-repository.interface';
+import { VerificationTokenRepository } from '@domain/user/repositories/verification-token-repository.interface';
+import { TokenService } from '@infrastructure/services/token.service';
 import { UserMapper } from '../../mappers/user.mapper';
 import { UserDto } from '../../dtos/user.dto';
-import { VerificationTokenType } from '../../../../domain/user/entities/verification-token.entity';
-import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
+import { VerificationTokenType } from '@domain/user/entities/verification-token.entity';
+import { UserId } from '@domain/user/value-objects/user-id.vo';
 
 @CommandHandler(VerifyEmailCommand)
 export class VerifyEmailHandler implements ICommandHandler<VerifyEmailCommand, UserDto> {

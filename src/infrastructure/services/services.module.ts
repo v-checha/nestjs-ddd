@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PasswordService } from './password.service';
 import { EmailService } from './email.service';
 import { TokenService } from './token.service';
-import { UserModule } from '../../frameworks/nest/modules/user.module';
+import { UserModule } from '@frameworks/nest/modules/user.module';
 
 @Module({
   imports: [

@@ -1,15 +1,15 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { RegisterCommand } from './register.command';
 import { UserDto } from '../../dtos/user.dto';
-import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
-import { User } from '../../../../domain/user/entities/user.entity';
-import { Email } from '../../../../domain/user/value-objects/email.vo';
+import { UserRepository } from '@domain/user/repositories/user-repository.interface';
+import { User } from '@domain/user/entities/user.entity';
+import { Email } from '@domain/user/value-objects/email.vo';
 import { UserMapper } from '../../mappers/user.mapper';
 import { Inject } from '@nestjs/common';
 import { EmailAlreadyExistsException } from '../../../common/exceptions/application.exception';
-import { PasswordService } from '../../../../infrastructure/services/password.service';
-import { TokenService } from '../../../../infrastructure/services/token.service';
-import { EmailService } from '../../../../infrastructure/services/email.service';
+import { PasswordService } from '@infrastructure/services/password.service';
+import { TokenService } from '@infrastructure/services/token.service';
+import { EmailService } from '@infrastructure/services/email.service';
 
 @CommandHandler(RegisterCommand)
 export class RegisterHandler implements ICommandHandler<RegisterCommand, UserDto> {

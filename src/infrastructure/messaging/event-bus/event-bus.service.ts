@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitMQService } from '../rabbitmq/rabbitmq.service';
-import { DomainEvent } from '../../../domain/common/events/domain-event.interface';
+import { DomainEvent } from '@domain/common/events/domain-event.interface';
 
 @Injectable()
 export class EventBusService {

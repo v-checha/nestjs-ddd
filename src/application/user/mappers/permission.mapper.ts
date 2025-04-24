@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Permission } from '../../../domain/user/entities/permission.entity';
+import { Permission } from '@domain/user/entities/permission.entity';
 import { PermissionDto } from '../dtos/permission.dto';
-import { ResourceType } from '../../../domain/user/value-objects/resource.vo';
-import { ActionType } from '../../../domain/user/value-objects/permission-action.vo';
+import { ResourceType } from '@domain/user/value-objects/resource.vo';
+import { ActionType } from '@domain/user/value-objects/permission-action.vo';
 
 @Injectable()
 export class PermissionMapper {

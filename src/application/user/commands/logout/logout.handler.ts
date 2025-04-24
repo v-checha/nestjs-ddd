@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LogoutCommand } from './logout.command';
 // No common imports needed
-import { TokenService } from '../../../../infrastructure/services/token.service';
+import { TokenService } from '@infrastructure/services/token.service';
 
 @CommandHandler(LogoutCommand)
 export class LogoutHandler implements ICommandHandler<LogoutCommand, void> {

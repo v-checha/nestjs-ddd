@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PermissionResponse } from './permission.response';
-import { RoleTypeEnum } from '../../../../domain/user/value-objects/role-type.vo';
+import { RoleTypeEnum } from '@domain/user/value-objects/role-type.vo';
 
 export class RoleResponse {
   @ApiProperty({

@@ -1,12 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RefreshTokenCommand } from './refresh-token.command';
 import { Inject, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
-import { RefreshTokenRepository } from '../../../../domain/user/repositories/refresh-token-repository.interface';
-import { TokenService } from '../../../../infrastructure/services/token.service';
-import { JwtAuthService } from '../../../../infrastructure/authentication/jwt-auth.service';
+import { UserRepository } from '@domain/user/repositories/user-repository.interface';
+import { RefreshTokenRepository } from '@domain/user/repositories/refresh-token-repository.interface';
+import { TokenService } from '@infrastructure/services/token.service';
+import { JwtAuthService } from '@infrastructure/authentication/jwt-auth.service';
 import { AuthTokenDto } from '../../dtos/auth-token.dto';
-import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
+import { UserId } from '@domain/user/value-objects/user-id.vo';
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand, AuthTokenDto> {

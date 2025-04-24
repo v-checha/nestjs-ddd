@@ -7,17 +7,17 @@ import {
   UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Public } from '../../../frameworks/nest/decorators/public.decorator';
+import { Public } from '@frameworks/nest/decorators/public.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse as SwaggerResponse, ApiTags } from '@nestjs/swagger';
-import { LoginCommand } from '../../../application/user/commands/login/login.command';
-import { RegisterCommand } from '../../../application/user/commands/register/register.command';
-import { ForgotPasswordCommand } from '../../../application/user/commands/forgot-password/forgot-password.command';
-import { ResetPasswordCommand } from '../../../application/user/commands/reset-password/reset-password.command';
-import { VerifyEmailCommand } from '../../../application/user/commands/verify-email/verify-email.command';
-import { RefreshTokenCommand } from '../../../application/user/commands/refresh-token/refresh-token.command';
-import { LogoutCommand } from '../../../application/user/commands/logout/logout.command';
-import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
+import { LoginCommand } from '@application/user/commands/login/login.command';
+import { RegisterCommand } from '@application/user/commands/register/register.command';
+import { ForgotPasswordCommand } from '@application/user/commands/forgot-password/forgot-password.command';
+import { ResetPasswordCommand } from '@application/user/commands/reset-password/reset-password.command';
+import { VerifyEmailCommand } from '@application/user/commands/verify-email/verify-email.command';
+import { RefreshTokenCommand } from '@application/user/commands/refresh-token/refresh-token.command';
+import { LogoutCommand } from '@application/user/commands/logout/logout.command';
+import { JwtAuthGuard } from '@frameworks/nest/guards/jwt-auth.guard';
 import { LoginRequest } from '../dtos/request/login.request';
 import { RegisterRequest } from '../dtos/request/register.request';
 import { ForgotPasswordRequest } from '../dtos/request/forgot-password.request';

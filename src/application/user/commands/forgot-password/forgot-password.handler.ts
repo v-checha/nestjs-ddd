@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ForgotPasswordCommand } from './forgot-password.command';
 import { Inject } from '@nestjs/common';
-import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
-import { Email } from '../../../../domain/user/value-objects/email.vo';
-import { TokenService } from '../../../../infrastructure/services/token.service';
-import { EmailService } from '../../../../infrastructure/services/email.service';
+import { UserRepository } from '@domain/user/repositories/user-repository.interface';
+import { Email } from '@domain/user/value-objects/email.vo';
+import { TokenService } from '@infrastructure/services/token.service';
+import { EmailService } from '@infrastructure/services/email.service';
 
 @CommandHandler(ForgotPasswordCommand)
 export class ForgotPasswordHandler implements ICommandHandler<ForgotPasswordCommand, void> {
