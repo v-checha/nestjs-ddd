@@ -2,15 +2,15 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreatePermissionCommand } from './create-permission.command';
 import { PermissionDto } from '../../dtos/permission.dto';
 import { Inject } from '@nestjs/common';
-import { IPermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
+import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
 import { Permission } from '../../../../domain/user/entities/permission.entity';
 import { PermissionMapper } from '../../mappers/permission.mapper';
 
 @CommandHandler(CreatePermissionCommand)
 export class CreatePermissionHandler implements ICommandHandler<CreatePermissionCommand, PermissionDto> {
   constructor(
-    @Inject('IPermissionRepository')
-    private readonly permissionRepository: IPermissionRepository,
+    @Inject('PermissionRepository')
+    private readonly permissionRepository: PermissionRepository,
     private readonly permissionMapper: PermissionMapper,
   ) {}
 

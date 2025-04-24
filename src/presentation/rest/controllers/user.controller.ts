@@ -8,6 +8,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { Public } from '../../../frameworks/nest/decorators/public.decorator';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserCommand } from '../../../application/user/commands/create-user/create-user.command';
@@ -30,6 +31,7 @@ export class UserController {
   ) {}
 
   @Post()
+  @Public()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({
     status: 201,

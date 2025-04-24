@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { RoleResponse } from './role.response';
 
 export class UserResponse {
   @ApiProperty({
@@ -24,6 +25,25 @@ export class UserResponse {
     description: 'The last name of the user',
   })
   lastName: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'Whether the user has verified their email address',
+  })
+  isVerified: boolean;
+
+  @ApiProperty({
+    type: [RoleResponse],
+    description: 'The roles assigned to the user',
+  })
+  roles: RoleResponse[];
+
+  @ApiProperty({
+    example: '2023-01-01T00:00:00.000Z',
+    description: 'The date when the user last logged in',
+    required: false,
+  })
+  lastLogin?: Date;
 
   @ApiProperty({
     example: '2023-01-01T00:00:00.000Z',

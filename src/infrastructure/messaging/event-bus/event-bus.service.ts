@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitMQService } from '../rabbitmq/rabbitmq.service';
-import { IDomainEvent } from '../../../domain/common/events/domain-event.interface';
+import { DomainEvent } from '../../../domain/common/events/domain-event.interface';
 
 @Injectable()
 export class EventBusService {
@@ -8,7 +8,7 @@ export class EventBusService {
 
   constructor(private readonly rabbitMQService: RabbitMQService) {}
 
-  async publish(events: IDomainEvent[]): Promise<void> {
+  async publish(events: DomainEvent[]): Promise<void> {
     for (const event of events) {
       await this.rabbitMQService.publishMessage(
         this.EXCHANGE,

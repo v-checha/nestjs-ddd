@@ -16,6 +16,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../frameworks/nest/guards/permissions.guard';
+import { RequirePermissions } from '../../../frameworks/nest/decorators/permissions.decorator';
 import { CreateRoleRequest } from '../dtos/request/create-role.request';
 import { UpdateRoleRequest } from '../dtos/request/update-role.request';
 import { RoleResponse } from '../dtos/response/role.response';
@@ -35,6 +37,8 @@ export class RoleController {
   ) {}
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions('role:create')
   @ApiOperation({ summary: 'Create a new role' })
   @ApiResponse({
     status: 201,
@@ -52,6 +56,8 @@ export class RoleController {
   }
 
   @Get()
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions('role:read')
   @ApiOperation({ summary: 'Get all roles' })
   @ApiResponse({
     status: 200,
@@ -63,6 +69,8 @@ export class RoleController {
   }
 
   @Get(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions('role:read')
   @ApiOperation({ summary: 'Get a role by ID' })
   @ApiResponse({
     status: 200,
@@ -75,6 +83,8 @@ export class RoleController {
   }
 
   @Put(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions('role:update')
   @ApiOperation({ summary: 'Update a role' })
   @ApiResponse({
     status: 200,

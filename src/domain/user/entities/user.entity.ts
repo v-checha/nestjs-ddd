@@ -10,6 +10,8 @@ interface UserProps {
   lastName: string;
   password: string;
   roles: Role[];
+  isVerified?: boolean;
+  lastLogin?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -55,11 +57,20 @@ export class User extends AggregateRoot<UserProps> {
     return this.props.roles;
   }
 
+  get isVerified(): boolean {
+    return this.props.isVerified ?? false;
+  }
+
+  get lastLogin(): Date | undefined {
+    return this.props.lastLogin;
+  }
+
   public static create(props: UserProps, id?: string): User {
     const user = new User(
       {
         ...props,
         roles: props.roles || [],
+        isVerified: props.isVerified ?? false,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
@@ -110,5 +121,15 @@ export class User extends AggregateRoot<UserProps> {
     return this.props.roles.some(role => 
       role.permissions.some(permission => permission.id === permissionId)
     );
+  }
+
+  public verify(): void {
+    this.props.isVerified = true;
+    this.props.updatedAt = new Date();
+  }
+
+  public updateLoginTimestamp(): void {
+    this.props.lastLogin = new Date();
+    this.props.updatedAt = new Date();
   }
 }

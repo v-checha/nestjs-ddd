@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UserDomainModule } from '../../domain/user/domain.module';
 import { UserModule } from '../../frameworks/nest/modules/user.module';
+import { AuthModule } from '../../infrastructure/authentication/auth.module';
+import { ServicesModule } from '../../infrastructure/services/services.module';
 
 // Mappers
 import { UserMapper } from './mappers/user.mapper';
@@ -23,6 +25,15 @@ import { UpdatePermissionHandler } from './commands/update-permission/update-per
 // Role assignment commands
 import { AssignRoleToUserHandler } from './commands/assign-role-to-user/assign-role-to-user.handler';
 import { RemoveRoleFromUserHandler } from './commands/remove-role-from-user/remove-role-from-user.handler';
+
+// Auth commands
+import { LoginHandler } from './commands/login/login.handler';
+import { RegisterHandler } from './commands/register/register.handler';
+import { VerifyEmailHandler } from './commands/verify-email/verify-email.handler';
+import { ForgotPasswordHandler } from './commands/forgot-password/forgot-password.handler';
+import { ResetPasswordHandler } from './commands/reset-password/reset-password.handler';
+import { RefreshTokenHandler } from './commands/refresh-token/refresh-token.handler';
+import { LogoutHandler } from './commands/logout/logout.handler';
 
 // User queries
 import { GetUserHandler } from './queries/get-user/get-user.handler';
@@ -49,6 +60,14 @@ const CommandHandlers = [
   // Role assignment commands
   AssignRoleToUserHandler,
   RemoveRoleFromUserHandler,
+  // Auth commands
+  LoginHandler,
+  RegisterHandler,
+  VerifyEmailHandler,
+  ForgotPasswordHandler,
+  ResetPasswordHandler,
+  RefreshTokenHandler,
+  LogoutHandler,
 ];
 
 const QueryHandlers = [
@@ -66,7 +85,7 @@ const QueryHandlers = [
 const Mappers = [UserMapper, RoleMapper, PermissionMapper];
 
 @Module({
-  imports: [CqrsModule, UserDomainModule, UserModule],
+  imports: [CqrsModule, UserDomainModule, UserModule, AuthModule, ServicesModule],
   providers: [...Mappers, ...CommandHandlers, ...QueryHandlers],
   exports: [...Mappers, ...CommandHandlers, ...QueryHandlers],
 })

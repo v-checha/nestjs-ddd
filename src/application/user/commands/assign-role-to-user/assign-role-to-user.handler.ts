@@ -2,8 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AssignRoleToUserCommand } from './assign-role-to-user.command';
 import { UserDto } from '../../dtos/user.dto';
 import { Inject } from '@nestjs/common';
-import { IUserRepository } from '../../../../domain/user/repositories/user-repository.interface';
-import { IRoleRepository } from '../../../../domain/user/repositories/role-repository.interface';
+import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
+import { RoleRepository } from '../../../../domain/user/repositories/role-repository.interface';
 import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
 import { UserMapper } from '../../mappers/user.mapper';
 
@@ -12,10 +12,10 @@ export class AssignRoleToUserHandler
   implements ICommandHandler<AssignRoleToUserCommand, UserDto>
 {
   constructor(
-    @Inject('IUserRepository')
-    private readonly userRepository: IUserRepository,
-    @Inject('IRoleRepository')
-    private readonly roleRepository: IRoleRepository,
+    @Inject('UserRepository')
+    private readonly userRepository: UserRepository,
+    @Inject('RoleRepository')
+    private readonly roleRepository: RoleRepository,
     private readonly userMapper: UserMapper,
   ) {}
 

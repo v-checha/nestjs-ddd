@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetUserQuery } from './get-user.query';
 import { UserDto } from '../../dtos/user.dto';
-import { IUserRepository } from '../../../../domain/user/repositories/user-repository.interface';
+import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
 import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
 import { UserMapper } from '../../mappers/user.mapper';
 import { Inject } from '@nestjs/common';
@@ -10,8 +10,8 @@ import { UserNotFoundException } from '../../../common/exceptions/application.ex
 @QueryHandler(GetUserQuery)
 export class GetUserHandler implements IQueryHandler<GetUserQuery, UserDto> {
   constructor(
-    @Inject('IUserRepository')
-    private readonly userRepository: IUserRepository,
+    @Inject('UserRepository')
+    private readonly userRepository: UserRepository,
     private readonly userMapper: UserMapper,
   ) {}
 

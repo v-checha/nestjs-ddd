@@ -11,14 +11,18 @@ datasource db {
 }
 
 model User {
-  id        String       @id
-  email     String       @unique
-  firstName String
-  lastName  String
-  password  String
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  userRoles UserRole[]
+  id                String            @id
+  email             String            @unique
+  firstName         String
+  lastName          String
+  password          String
+  isVerified        Boolean           @default(false)
+  lastLogin         DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  userRoles         UserRole[]
+  refreshTokens     RefreshToken[]
+  verificationTokens VerificationToken[]
 }
 
 model Permission {
@@ -60,4 +64,32 @@ model RolePermission {
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  issuedAt  DateTime @default(now())
+  expiresAt DateTime
+  device    String?  // Optional device identifier
+  ipAddress String?  // Optional IP address
+  isRevoked Boolean  @default(false)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // 'email-verification' or 'password-reset'
+  issuedAt  DateTime @default(now())
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+
+  @@index([userId])
+  @@index([token])
 }

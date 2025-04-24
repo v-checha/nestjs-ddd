@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdatePermissionCommand } from './update-permission.command';
 import { PermissionDto } from '../../dtos/permission.dto';
 import { Inject } from '@nestjs/common';
-import { IPermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
+import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
 import { PermissionMapper } from '../../mappers/permission.mapper';
 
 @CommandHandler(UpdatePermissionCommand)
@@ -10,8 +10,8 @@ export class UpdatePermissionHandler
   implements ICommandHandler<UpdatePermissionCommand, PermissionDto>
 {
   constructor(
-    @Inject('IPermissionRepository')
-    private readonly permissionRepository: IPermissionRepository,
+    @Inject('PermissionRepository')
+    private readonly permissionRepository: PermissionRepository,
     private readonly permissionMapper: PermissionMapper,
   ) {}
 

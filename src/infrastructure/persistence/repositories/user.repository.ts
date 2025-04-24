@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IUserRepository } from '../../../domain/user/repositories/user-repository.interface';
+import { UserRepository } from '../../../domain/user/repositories/user-repository.interface';
 import { User } from '../../../domain/user/entities/user.entity';
 import { Email } from '../../../domain/user/value-objects/email.vo';
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
@@ -8,8 +8,8 @@ import { Role } from '../../../domain/user/entities/role.entity';
 import { Permission, PermissionAction } from '../../../domain/user/entities/permission.entity';
 
 @Injectable()
-export class UserRepository implements IUserRepository {
-  private readonly logger = new Logger(UserRepository.name);
+export class PrismaUserRepository implements UserRepository {
+  private readonly logger = new Logger(PrismaUserRepository.name);
 
   constructor(private prisma: PrismaService) {}
 
@@ -72,6 +72,7 @@ export class UserRepository implements IUserRepository {
       return null;
     }
   }
+
 
   async save(user: User): Promise<void> {
     try {
@@ -210,6 +211,8 @@ export class UserRepository implements IUserRepository {
         lastName: userData.lastName,
         password: userData.password,
         roles: roles,
+        isVerified: userData.isVerified,
+        lastLogin: userData.lastLogin,
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
       },

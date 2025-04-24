@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IRoleRepository } from '../../../domain/user/repositories/role-repository.interface';
+import { RoleRepository } from '../../../domain/user/repositories/role-repository.interface';
 import { Role } from '../../../domain/user/entities/role.entity';
 import { Permission, PermissionAction } from '../../../domain/user/entities/permission.entity';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
-export class RoleRepository implements IRoleRepository {
-  private readonly logger = new Logger(RoleRepository.name);
+export class PrismaRoleRepository implements RoleRepository {
+  private readonly logger = new Logger(PrismaRoleRepository.name);
 
   constructor(private prisma: PrismaService) {}
 

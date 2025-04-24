@@ -1,6 +1,6 @@
 import { Permission } from '../entities/permission.entity';
 
-export interface IPermissionRepository {
+export interface PermissionRepository {
   findById(id: string): Promise<Permission | null>;
   findByName(name: string): Promise<Permission | null>;
   findByResource(resource: string): Promise<Permission[]>;

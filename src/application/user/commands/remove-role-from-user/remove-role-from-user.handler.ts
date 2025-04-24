@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RemoveRoleFromUserCommand } from './remove-role-from-user.command';
 import { UserDto } from '../../dtos/user.dto';
 import { Inject } from '@nestjs/common';
-import { IUserRepository } from '../../../../domain/user/repositories/user-repository.interface';
+import { UserRepository } from '../../../../domain/user/repositories/user-repository.interface';
 import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
 import { UserMapper } from '../../mappers/user.mapper';
 
@@ -11,8 +11,8 @@ export class RemoveRoleFromUserHandler
   implements ICommandHandler<RemoveRoleFromUserCommand, UserDto>
 {
   constructor(
-    @Inject('IUserRepository')
-    private readonly userRepository: IUserRepository,
+    @Inject('UserRepository')
+    private readonly userRepository: UserRepository,
     private readonly userMapper: UserMapper,
   ) {}
 

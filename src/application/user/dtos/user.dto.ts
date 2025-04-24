@@ -5,7 +5,9 @@ export class UserDto {
   email: string;
   firstName: string;
   lastName: string;
+  isVerified: boolean;
   roles: RoleDto[];
+  lastLogin?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

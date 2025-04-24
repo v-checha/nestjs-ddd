@@ -13,7 +13,9 @@ export class UserMapper {
     dto.email = user.email.value;
     dto.firstName = user.firstName;
     dto.lastName = user.lastName;
+    dto.isVerified = user.isVerified;
     dto.roles = this.roleMapper.toDtoList(user.roles);
+    dto.lastLogin = user.lastLogin;
     dto.createdAt = user.createdAt;
     dto.updatedAt = user.updatedAt;
     return dto;

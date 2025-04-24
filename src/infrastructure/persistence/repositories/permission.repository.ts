@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IPermissionRepository } from '../../../domain/user/repositories/permission-repository.interface';
+import { PermissionRepository } from '../../../domain/user/repositories/permission-repository.interface';
 import { Permission, PermissionAction } from '../../../domain/user/entities/permission.entity';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
-export class PermissionRepository implements IPermissionRepository {
-  private readonly logger = new Logger(PermissionRepository.name);
+export class PrismaPermissionRepository implements PermissionRepository {
+  private readonly logger = new Logger(PrismaPermissionRepository.name);
 
   constructor(private prisma: PrismaService) {}
 
