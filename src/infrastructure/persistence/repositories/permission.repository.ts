@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PermissionRepository } from '../../../domain/user/repositories/permission-repository.interface';
 import { Permission, PermissionAction } from '../../../domain/user/entities/permission.entity';
 import { PrismaService } from '../prisma/prisma.service';
+import { EntityDeleteException, EntitySaveException } from '../../../domain/common/exceptions/domain.exception';
+import { PrismaPermissionModel } from '../prisma/prisma.types';
 
 @Injectable()
 export class PrismaPermissionRepository implements PermissionRepository {
@@ -74,7 +76,7 @@ export class PrismaPermissionRepository implements PermissionRepository {
       });
     } catch (error) {
       this.logger.error(`Error saving permission: ${error.message}`);
-      throw new Error(`Failed to save permission: ${error.message}`);
+      throw new EntitySaveException('Permission', error.message);
     }
   }
 
@@ -95,11 +97,11 @@ export class PrismaPermissionRepository implements PermissionRepository {
       });
     } catch (error) {
       this.logger.error(`Error deleting permission: ${error.message}`);
-      throw new Error(`Failed to delete permission: ${error.message}`);
+      throw new EntityDeleteException('Permission', error.message);
     }
   }
 
-  private mapToDomain(permissionData: any): Permission {
+  private mapToDomain(permissionData: PrismaPermissionModel): Permission {
     return Permission.create({
       name: permissionData.name,
       description: permissionData.description,

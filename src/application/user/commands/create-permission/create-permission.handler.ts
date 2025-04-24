@@ -5,6 +5,7 @@ import { Inject } from '@nestjs/common';
 import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
 import { Permission } from '../../../../domain/user/entities/permission.entity';
 import { PermissionMapper } from '../../mappers/permission.mapper';
+import { PermissionAlreadyExistsException } from '../../../common/exceptions/application.exception';
 
 @CommandHandler(CreatePermissionCommand)
 export class CreatePermissionHandler implements ICommandHandler<CreatePermissionCommand, PermissionDto> {
@@ -18,7 +19,7 @@ export class CreatePermissionHandler implements ICommandHandler<CreatePermission
     // Check if permission with the same name already exists
     const existingPermission = await this.permissionRepository.findByName(command.name);
     if (existingPermission) {
-      throw new Error(`Permission with name ${command.name} already exists`);
+      throw new PermissionAlreadyExistsException(command.name);
     }
 
     // Create a new permission

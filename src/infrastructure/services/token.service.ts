@@ -7,6 +7,7 @@ import { RefreshToken } from '../../domain/user/entities/refresh-token.entity';
 import { VerificationTokenRepository } from '../../domain/user/repositories/verification-token-repository.interface';
 import { RefreshTokenRepository } from '../../domain/user/repositories/refresh-token-repository.interface';
 import { add } from 'date-fns';
+import { TokenExpiredException, TokenNotFoundException } from '../../application/common/exceptions/application.exception';
 
 @Injectable()
 export class TokenService {
@@ -73,11 +74,11 @@ export class TokenService {
     const verificationToken = await this.verificationTokenRepository.findByToken(token);
     
     if (!verificationToken) {
-      throw new Error('Token not found');
+      throw new TokenNotFoundException();
     }
     
     if (!verificationToken.isValid()) {
-      throw new Error('Token is expired or already used');
+      throw new TokenExpiredException();
     }
 
     return verificationToken;
@@ -123,11 +124,11 @@ export class TokenService {
     const refreshToken = await this.refreshTokenRepository.findByToken(token);
     
     if (!refreshToken) {
-      throw new Error('Token not found');
+      throw new TokenNotFoundException();
     }
     
     if (!refreshToken.isValid()) {
-      throw new Error('Token is expired or revoked');
+      throw new TokenExpiredException();
     }
 
     return refreshToken;

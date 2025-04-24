@@ -4,6 +4,7 @@ import { PermissionDto } from '../../dtos/permission.dto';
 import { Inject } from '@nestjs/common';
 import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
 import { PermissionMapper } from '../../mappers/permission.mapper';
+import { PermissionNotFoundException } from '../../../common/exceptions/application.exception';
 
 @QueryHandler(GetPermissionQuery)
 export class GetPermissionHandler implements IQueryHandler<GetPermissionQuery, PermissionDto> {
@@ -17,7 +18,7 @@ export class GetPermissionHandler implements IQueryHandler<GetPermissionQuery, P
     const permission = await this.permissionRepository.findById(query.id);
 
     if (!permission) {
-      throw new Error(`Permission with id ${query.id} not found`);
+      throw new PermissionNotFoundException(query.id);
     }
 
     return this.permissionMapper.toDto(permission);
