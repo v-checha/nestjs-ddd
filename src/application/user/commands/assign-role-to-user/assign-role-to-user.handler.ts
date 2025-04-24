@@ -6,6 +6,7 @@ import { UserRepository } from '../../../../domain/user/repositories/user-reposi
 import { RoleRepository } from '../../../../domain/user/repositories/role-repository.interface';
 import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
 import { UserMapper } from '../../mappers/user.mapper';
+import { EntityNotFoundException } from '../../../../domain/common/exceptions/domain.exception';
 
 @CommandHandler(AssignRoleToUserCommand)
 export class AssignRoleToUserHandler
@@ -24,12 +25,12 @@ export class AssignRoleToUserHandler
     const userId = UserId.create(command.userId);
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new Error(`User with id ${command.userId} not found`);
+      throw new EntityNotFoundException('User', command.userId);
     }
 
     const role = await this.roleRepository.findById(command.roleId);
     if (!role) {
-      throw new Error(`Role with id ${command.roleId} not found`);
+      throw new EntityNotFoundException('Role', command.roleId);
     }
 
     // Assign the role to the user

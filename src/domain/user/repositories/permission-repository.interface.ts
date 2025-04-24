@@ -1,4 +1,6 @@
-import { Permission, Resource, PermissionAction } from '../entities/permission.entity';
+import { Permission } from '../entities/permission.entity';
+import { Resource } from '../value-objects/resource.vo';
+import { PermissionAction } from '../value-objects/permission-action.vo';
 import { PaginatedResult } from './role-repository.interface';
 
 export interface PermissionRepository {

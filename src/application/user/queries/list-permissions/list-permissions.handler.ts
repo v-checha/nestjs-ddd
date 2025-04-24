@@ -5,6 +5,7 @@ import { Inject } from '@nestjs/common';
 import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
 import { PaginatedResult } from '../../../../domain/user/repositories/role-repository.interface';
 import { PermissionMapper } from '../../mappers/permission.mapper';
+import { Resource } from '../../../../domain/user/value-objects/resource.vo';
 
 @QueryHandler(ListPermissionsQuery)
 export class ListPermissionsHandler implements IQueryHandler<ListPermissionsQuery, PaginatedResult<PermissionDto>> {
@@ -18,7 +19,8 @@ export class ListPermissionsHandler implements IQueryHandler<ListPermissionsQuer
     const { page = 1, limit = 10, resource } = query;
     
     if (resource) {
-      const permissions = await this.permissionRepository.findByResource(resource);
+      const resourceObj = Resource.create(resource);
+      const permissions = await this.permissionRepository.findByResource(resourceObj);
       return {
         data: this.permissionMapper.toDtoList(permissions),
         total: permissions.length,

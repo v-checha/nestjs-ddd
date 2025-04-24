@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PermissionRepository } from '../../../domain/user/repositories/permission-repository.interface';
-import { Permission, PermissionAction, Resource } from '../../../domain/user/entities/permission.entity';
+import { Permission } from '../../../domain/user/entities/permission.entity';
+import { Resource } from '../../../domain/user/value-objects/resource.vo';
+import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
 import { PrismaService } from '../prisma/prisma.service';
 import { EntityDeleteException, EntitySaveException } from '../../../domain/common/exceptions/domain.exception';
 import { PrismaPermissionModel } from '../prisma/prisma.types';
@@ -44,8 +46,9 @@ export class PrismaPermissionRepository implements PermissionRepository {
 
   async findByResource(resource: Resource): Promise<Permission[]> {
     try {
+      const resourceStr = resource.toString();
       const permissions = await this.prisma.permission.findMany({
-        where: { resource: resource },
+        where: { resource: resourceStr },
       });
       return permissions.map((permission) => this.mapToDomain(permission));
     } catch (error) {
@@ -56,8 +59,9 @@ export class PrismaPermissionRepository implements PermissionRepository {
 
   async findByAction(action: PermissionAction): Promise<Permission[]> {
     try {
+      const actionStr = action.toString();
       const permissions = await this.prisma.permission.findMany({
-        where: { action: action },
+        where: { action: actionStr },
       });
       return permissions.map((permission) => this.mapToDomain(permission));
     } catch (error) {
@@ -68,10 +72,12 @@ export class PrismaPermissionRepository implements PermissionRepository {
 
   async findByResourceAndAction(resource: Resource, action: PermissionAction): Promise<Permission | null> {
     try {
+      const resourceStr = resource.toString();
+      const actionStr = action.toString();
       const permissionData = await this.prisma.permission.findFirst({
         where: { 
-          resource: resource,
-          action: action
+          resource: resourceStr,
+          action: actionStr
         },
       });
 
@@ -91,16 +97,16 @@ export class PrismaPermissionRepository implements PermissionRepository {
         update: {
           name: permission.name,
           description: permission.description,
-          resource: permission.resource,
-          action: permission.action,
+          resource: permission.resource.toString(),
+          action: permission.action.toString(),
           updatedAt: new Date(),
         },
         create: {
           id: permission.id,
           name: permission.name,
           description: permission.description,
-          resource: permission.resource,
-          action: permission.action,
+          resource: permission.resource.toString(),
+          action: permission.action.toString(),
           createdAt: permission.createdAt,
           updatedAt: permission.updatedAt,
         },
@@ -121,16 +127,16 @@ export class PrismaPermissionRepository implements PermissionRepository {
             update: {
               name: permission.name,
               description: permission.description,
-              resource: permission.resource,
-              action: permission.action,
+              resource: permission.resource.toString(),
+              action: permission.action.toString(),
               updatedAt: new Date(),
             },
             create: {
               id: permission.id,
               name: permission.name,
               description: permission.description,
-              resource: permission.resource,
-              action: permission.action,
+              resource: permission.resource.toString(),
+              action: permission.action.toString(),
               createdAt: permission.createdAt,
               updatedAt: permission.updatedAt,
             },
@@ -194,8 +200,8 @@ export class PrismaPermissionRepository implements PermissionRepository {
     return Permission.create({
       name: permissionData.name,
       description: permissionData.description,
-      resource: permissionData.resource as Resource,
-      action: permissionData.action as PermissionAction,
+      resource: Resource.create(permissionData.resource),
+      action: PermissionAction.create(permissionData.action),
       createdAt: permissionData.createdAt,
       updatedAt: permissionData.updatedAt,
     }, permissionData.id);

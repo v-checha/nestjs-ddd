@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PaginatedResult, RoleRepository } from '../../../domain/user/repositories/role-repository.interface';
-import { Role, RoleType } from '../../../domain/user/entities/role.entity';
-import { Permission, PermissionAction, Resource } from '../../../domain/user/entities/permission.entity';
+import { Role } from '../../../domain/user/entities/role.entity';
+import { RoleType } from '../../../domain/user/value-objects/role-type.vo';
+import { Permission } from '../../../domain/user/entities/permission.entity';
+import { Resource } from '../../../domain/user/value-objects/resource.vo';
+import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
 import { PrismaService } from '../prisma/prisma.service';
 import { EntityDeleteException, EntitySaveException } from '../../../domain/common/exceptions/domain.exception';
 
@@ -57,8 +60,9 @@ export class PrismaRoleRepository implements RoleRepository {
 
   async findByType(type: RoleType): Promise<Role | null> {
     try {
+      const typeStr = type.toString();
       const roleData = await this.prisma.role.findFirst({
-        where: { type: type },
+        where: { type: typeStr },
         include: {
           rolePermissions: {
             include: {
@@ -121,7 +125,7 @@ export class PrismaRoleRepository implements RoleRepository {
           update: {
             name: role.name,
             description: role.description,
-            type: role.type,
+            type: role.type.toString(),
             isDefault: role.isDefault,
             updatedAt: new Date(),
           },
@@ -129,7 +133,7 @@ export class PrismaRoleRepository implements RoleRepository {
             id: role.id,
             name: role.name,
             description: role.description,
-            type: role.type,
+            type: role.type.toString(),
             isDefault: role.isDefault,
             createdAt: role.createdAt,
             updatedAt: role.updatedAt,
@@ -238,8 +242,8 @@ export class PrismaRoleRepository implements RoleRepository {
       return Permission.create({
         name: permissionData.name,
         description: permissionData.description,
-        resource: permissionData.resource as Resource,
-        action: permissionData.action as PermissionAction,
+        resource: Resource.create(permissionData.resource),
+        action: PermissionAction.create(permissionData.action),
         createdAt: permissionData.createdAt,
         updatedAt: permissionData.updatedAt,
       }, permissionData.id);
@@ -249,7 +253,7 @@ export class PrismaRoleRepository implements RoleRepository {
       name: roleData.name,
       description: roleData.description,
       permissions: permissions,
-      type: roleData.type as RoleType,
+      type: RoleType.create(roleData.type),
       isDefault: roleData.isDefault,
       createdAt: roleData.createdAt,
       updatedAt: roleData.updatedAt,

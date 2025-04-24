@@ -1,21 +1,18 @@
 import { Entity } from '../../common/base/entity.base';
-import { v4 as uuidv4 } from 'uuid';
 import { Permission } from './permission.entity';
-
-export enum RoleType {
-  SUPER_ADMIN = 'super_admin',
-  ADMIN = 'admin',
-  MODERATOR = 'moderator',
-  USER = 'user',
-  GUEST = 'guest',
-}
+import { RoleId } from '../value-objects/role-id.vo';
+import { RoleName } from '../value-objects/role-name.vo';
+import { RoleType, RoleTypeEnum } from '../value-objects/role-type.vo';
+import { Resource } from '../value-objects/resource.vo';
+import { PermissionAction, ActionType } from '../value-objects/permission-action.vo';
+import { PermissionId } from '../value-objects/permission-id.vo';
 
 interface RoleProps {
-  name: string;
+  name: RoleName;
   description: string;
+  type: RoleType;
+  isDefault: boolean;
   permissions: Permission[];
-  type?: RoleType;
-  isDefault?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -25,24 +22,28 @@ export class Role extends Entity<RoleProps> {
     super(props, id);
   }
 
+  get roleId(): RoleId {
+    return RoleId.create(this.id);
+  }
+
   get name(): string {
-    return this.props.name;
+    return this.props.name.value;
   }
 
   get description(): string {
     return this.props.description;
   }
 
-  get permissions(): Permission[] {
-    return this.props.permissions;
-  }
-
   get type(): RoleType {
-    return this.props.type ?? RoleType.USER;
+    return this.props.type;
   }
   
   get isDefault(): boolean {
-    return this.props.isDefault ?? false;
+    return this.props.isDefault;
+  }
+
+  get permissions(): Permission[] {
+    return this.props.permissions;
   }
 
   get createdAt(): Date {
@@ -53,45 +54,61 @@ export class Role extends Entity<RoleProps> {
     return this.props.updatedAt ?? new Date();
   }
 
-  public static create(props: RoleProps, id?: string): Role {
+  public static create(props: {
+    name: string;
+    description: string;
+    permissions: Permission[];
+    type?: string | RoleType;
+    isDefault?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
+  }, id?: string): Role {
+    const roleType = props.type instanceof RoleType
+      ? props.type
+      : RoleType.create(props.type || RoleTypeEnum.USER);
+
     return new Role(
       {
-        ...props,
-        type: props.type ?? RoleType.USER,
+        name: RoleName.create(props.name),
+        description: props.description,
+        type: roleType,
         isDefault: props.isDefault ?? false,
         permissions: props.permissions || [],
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
-      id ?? uuidv4(),
+      id,
     );
   }
   
   /**
    * Create a predefined role with appropriate permissions
    */
-  public static createPredefinedRole(type: RoleType, permissions: Permission[] = []): Role {
+  public static createPredefinedRole(type: string | RoleType, permissions: Permission[] = []): Role {
+    const roleType = type instanceof RoleType ? type : RoleType.create(type);
     let name = '';
     let description = '';
+    let isDefault = false;
     
-    switch (type) {
-      case RoleType.SUPER_ADMIN:
+    switch (roleType.value) {
+      case RoleTypeEnum.SUPER_ADMIN:
         name = 'Super Administrator';
         description = 'Complete access to all system resources and functionalities';
         break;
-      case RoleType.ADMIN:
+      case RoleTypeEnum.ADMIN:
         name = 'Administrator';
         description = 'Administrative access to system resources';
         break;
-      case RoleType.MODERATOR:
+      case RoleTypeEnum.MODERATOR:
         name = 'Moderator';
         description = 'Manage and moderate user generated content';
         break;
-      case RoleType.USER:
+      case RoleTypeEnum.USER:
         name = 'User';
         description = 'Standard user access';
+        isDefault = true;
         break;
-      case RoleType.GUEST:
+      case RoleTypeEnum.GUEST:
         name = 'Guest';
         description = 'Limited access to public resources';
         break;
@@ -101,32 +118,64 @@ export class Role extends Entity<RoleProps> {
       name,
       description,
       permissions,
-      type,
-      isDefault: type === RoleType.USER, // Make the regular user role default
+      type: roleType,
+      isDefault,
     });
   }
 
   public updateDetails(name: string, description: string): void {
-    this.props.name = name;
-    this.props.description = description;
-    this.props.updatedAt = new Date();
+    this.props = {
+      ...this.props,
+      name: RoleName.create(name),
+      description,
+      updatedAt: new Date(),
+    };
+  }
+
+  public setDefault(isDefault: boolean): void {
+    this.props = {
+      ...this.props,
+      isDefault,
+      updatedAt: new Date(),
+    };
   }
 
   public addPermission(permission: Permission): void {
     if (!this.hasPermission(permission.id)) {
-      this.props.permissions.push(permission);
-      this.props.updatedAt = new Date();
+      this.props = {
+        ...this.props,
+        permissions: [...this.props.permissions, permission],
+        updatedAt: new Date(),
+      };
     }
   }
 
   public removePermission(permissionId: string): void {
-    this.props.permissions = this.props.permissions.filter(
-      (permission) => permission.id !== permissionId,
-    );
-    this.props.updatedAt = new Date();
+    this.props = {
+      ...this.props,
+      permissions: this.props.permissions.filter(
+        (permission) => permission.id !== permissionId,
+      ),
+      updatedAt: new Date(),
+    };
   }
 
   public hasPermission(permissionId: string): boolean {
     return this.props.permissions.some((permission) => permission.id === permissionId);
+  }
+
+  public hasPermissionFor(resource: string | Resource, action: string | PermissionAction): boolean {
+    const resourceObj = resource instanceof Resource ? resource : Resource.create(resource);
+    const actionObj = action instanceof PermissionAction ? action : PermissionAction.create(action);
+    
+    // Super admin has access to everything
+    if (this.type.isSuperAdmin()) {
+      return true;
+    }
+    
+    return this.props.permissions.some(permission => 
+      permission.resource.value === resourceObj.value && 
+      (permission.action.value === actionObj.value || permission.action.value === ActionType.MANAGE)
+    );
   }
 }

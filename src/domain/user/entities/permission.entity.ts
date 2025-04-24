@@ -1,8 +1,11 @@
 import { Entity } from '../../common/base/entity.base';
-import { v4 as uuidv4 } from 'uuid';
+import { Resource } from '../value-objects/resource.vo';
+import { PermissionAction } from '../value-objects/permission-action.vo';
+import { PermissionId } from '../value-objects/permission-id.vo';
+import { PermissionName } from '../value-objects/permission-name.vo';
 
 interface PermissionProps {
-  name: string;
+  name: PermissionName;
   description: string;
   resource: Resource;
   action: PermissionAction;
@@ -10,36 +13,17 @@ interface PermissionProps {
   updatedAt?: Date;
 }
 
-export enum PermissionAction {
-  CREATE = 'create',
-  READ = 'read',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  MANAGE = 'manage', // Full access to the resource
-}
-
-export enum Resource {
-  USER = 'user',
-  ROLE = 'role',
-  PERMISSION = 'permission',
-  PROFILE = 'profile',
-  POST = 'post',
-  COMMENT = 'comment',
-  CATEGORY = 'category',
-  TAG = 'tag',
-  MEDIA = 'media',
-  SETTINGS = 'settings',
-  ANALYTICS = 'analytics',
-  AUDIT = 'audit',
-}
-
 export class Permission extends Entity<PermissionProps> {
   private constructor(props: PermissionProps, id?: string) {
     super(props, id);
   }
 
+  get permissionId(): PermissionId {
+    return PermissionId.create(this.id);
+  }
+
   get name(): string {
-    return this.props.name;
+    return this.props.name.value;
   }
 
   get description(): string {
@@ -62,28 +46,53 @@ export class Permission extends Entity<PermissionProps> {
     return this.props.updatedAt ?? new Date();
   }
 
-  public static create(props: PermissionProps, id?: string): Permission {
+  public static create(props: {
+    name: string;
+    description: string;
+    resource: string | Resource;
+    action: string | PermissionAction;
+    createdAt?: Date;
+    updatedAt?: Date;
+  }, id?: string): Permission {
+    const resource = props.resource instanceof Resource 
+      ? props.resource 
+      : Resource.create(props.resource);
+      
+    const action = props.action instanceof PermissionAction
+      ? props.action
+      : PermissionAction.create(props.action);
+
+    const name = props.name 
+      ? PermissionName.create(props.name)
+      : PermissionName.fromResourceAndAction(resource, action);
+
     return new Permission(
       {
-        ...props,
+        name,
+        description: props.description,
+        resource,
+        action,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
-      id ?? uuidv4(),
+      id,
     );
   }
 
   public updateDetails(name: string, description: string): void {
-    this.props.name = name;
-    this.props.description = description;
-    this.props.updatedAt = new Date();
+    this.props = {
+      ...this.props,
+      name: PermissionName.create(name),
+      description,
+      updatedAt: new Date(),
+    };
   }
 
   /**
    * Returns a string representation of the permission in the format "resource:action"
    */
   public getPermissionString(): string {
-    return `${this.props.resource}:${this.props.action}`;
+    return `${this.props.resource.toString()}:${this.props.action.toString()}`;
   }
 
   /**
@@ -96,22 +105,11 @@ export class Permission extends Entity<PermissionProps> {
       throw new Error(`Invalid permission string: ${permissionString}`);
     }
     
-    if (!Object.values(Resource).includes(resourceStr as Resource)) {
-      throw new Error(`Invalid resource: ${resourceStr}`);
-    }
-    
-    if (!Object.values(PermissionAction).includes(actionStr as PermissionAction)) {
-      throw new Error(`Invalid action: ${actionStr}`);
-    }
-    
-    const resource = resourceStr as Resource;
-    const action = actionStr as PermissionAction;
-    
     return Permission.create({
-      name: name || `${resource}:${action}`,
-      description: description || `Permission to ${action} ${resource}`,
-      resource,
-      action,
+      name: name || permissionString,
+      description: description || `Permission to ${actionStr} ${resourceStr}`,
+      resource: resourceStr,
+      action: actionStr,
     });
   }
 }

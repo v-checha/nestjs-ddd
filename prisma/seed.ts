@@ -1,6 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
+import { ResourceType } from '../src/domain/user/value-objects/resource.vo';
+import { ActionType } from '../src/domain/user/value-objects/permission-action.vo';
+import { RoleTypeEnum } from '../src/domain/user/value-objects/role-type.vo';
 
 const prisma = new PrismaClient();
 
@@ -10,73 +13,41 @@ export { main };
 // Define constants
 const SALT_ROUNDS = 10;
 
-// Resource and action types to match our enums
-enum Resource {
-  USER = 'user',
-  ROLE = 'role',
-  PERMISSION = 'permission',
-  PROFILE = 'profile',
-  POST = 'post',
-  COMMENT = 'comment',
-  CATEGORY = 'category',
-  TAG = 'tag',
-  MEDIA = 'media',
-  SETTINGS = 'settings',
-  ANALYTICS = 'analytics',
-  AUDIT = 'audit',
-}
-
-enum PermissionAction {
-  CREATE = 'create',
-  READ = 'read',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  MANAGE = 'manage',
-}
-
-enum RoleType {
-  SUPER_ADMIN = 'super_admin',
-  ADMIN = 'admin',
-  MODERATOR = 'moderator',
-  USER = 'user',
-  GUEST = 'guest',
-}
-
 // Permission and role definitions
 const roleDefinitions = [
   {
     id: uuidv4(),
     name: 'Super Administrator',
     description: 'Complete access to all system resources and functionalities',
-    type: RoleType.SUPER_ADMIN,
+    type: RoleTypeEnum.SUPER_ADMIN,
     isDefault: false,
   },
   {
     id: uuidv4(),
     name: 'Administrator',
     description: 'Administrative access to system resources',
-    type: RoleType.ADMIN,
+    type: RoleTypeEnum.ADMIN,
     isDefault: false,
   },
   {
     id: uuidv4(),
     name: 'Moderator',
     description: 'Manage and moderate user generated content',
-    type: RoleType.MODERATOR,
+    type: RoleTypeEnum.MODERATOR,
     isDefault: false,
   },
   {
     id: uuidv4(),
     name: 'User',
     description: 'Standard user access',
-    type: RoleType.USER,
+    type: RoleTypeEnum.USER,
     isDefault: true,
   },
   {
     id: uuidv4(),
     name: 'Guest',
     description: 'Limited access to public resources',
-    type: RoleType.GUEST,
+    type: RoleTypeEnum.GUEST,
     isDefault: false,
   },
 ];
@@ -85,8 +56,8 @@ const roleDefinitions = [
 function generatePermissions() {
   const permissions = [];
   
-  for (const resource of Object.values(Resource)) {
-    for (const action of Object.values(PermissionAction)) {
+  for (const resource of Object.values(ResourceType)) {
+    for (const action of Object.values(ActionType)) {
       const id = uuidv4();
       const name = `${resource}:${action}`;
       const description = `Permission to ${action} ${resource}`;
@@ -129,17 +100,17 @@ const defaultUsers = [
 // Define role permission assignments
 // Key is role name, value is array of resources the role has full access to
 const rolePermissionMap = {
-  'Super Administrator': Object.values(Resource),
+  'Super Administrator': Object.values(ResourceType),
   'Administrator': [
-    Resource.USER, Resource.ROLE, Resource.PERMISSION, 
-    Resource.SETTINGS, Resource.ANALYTICS, Resource.AUDIT
+    ResourceType.USER, ResourceType.ROLE, ResourceType.PERMISSION, 
+    ResourceType.SETTINGS, ResourceType.ANALYTICS, ResourceType.AUDIT
   ],
   'Moderator': [
-    Resource.POST, Resource.COMMENT, Resource.MEDIA,
-    Resource.CATEGORY, Resource.TAG
+    ResourceType.POST, ResourceType.COMMENT, ResourceType.MEDIA,
+    ResourceType.CATEGORY, ResourceType.TAG
   ],
   'User': [
-    Resource.PROFILE
+    ResourceType.PROFILE
   ],
   'Guest': [] // No permissions
 };

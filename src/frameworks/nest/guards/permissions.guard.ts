@@ -2,7 +2,9 @@ import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Injec
 import { Reflector } from '@nestjs/core';
 import { UserRepository } from '../../../domain/user/repositories/user-repository.interface';
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
-import { PermissionAction, Resource } from '../../../domain/user/entities/permission.entity';
+import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
+import { Resource } from '../../../domain/user/value-objects/resource.vo';
+import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -15,7 +17,7 @@ export class PermissionsGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredPermissions = this.reflector.getAllAndOverride<string[]>('permissions', [
+    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -40,7 +42,7 @@ export class PermissionsGuard implements CanActivate {
     }
 
     // Check if the user has super_admin role - they have access to everything
-    const isSuperAdmin = userEntity.roles.some(role => role.type === 'super_admin');
+    const isSuperAdmin = userEntity.roles.some(role => role.type.isSuperAdmin());
     if (isSuperAdmin) {
       return true;
     }
@@ -50,27 +52,21 @@ export class PermissionsGuard implements CanActivate {
     const hasPermission = requiredPermissions.some(permissionString => {
       const [resourceStr, actionStr] = permissionString.split(':');
       
-      // Validate the permission string
-      if (!Object.values(Resource).includes(resourceStr as Resource)) {
-        this.logger.warn(`Invalid resource in permission string: ${permissionString}`);
+      if (!resourceStr || !actionStr) {
+        this.logger.warn(`Invalid permission string format: ${permissionString}`);
         return false;
       }
       
-      if (!Object.values(PermissionAction).includes(actionStr as PermissionAction)) {
-        this.logger.warn(`Invalid action in permission string: ${permissionString}`);
+      try {
+        const resource = Resource.create(resourceStr);
+        const action = PermissionAction.create(actionStr);
+        
+        // Check if the user has this permission through any of their roles
+        return userEntity.roles.some(role => role.hasPermissionFor(resource, action));
+      } catch (error) {
+        this.logger.warn(`Invalid permission: ${permissionString}. Error: ${error.message}`);
         return false;
       }
-      
-      const resource = resourceStr as Resource;
-      const action = actionStr as PermissionAction;
-      
-      // Check if the user has this permission through any of their roles
-      return userEntity.roles.some(role => 
-        role.permissions.some(perm => 
-          perm.resource === resource && 
-          (perm.action === action || perm.action === PermissionAction.MANAGE)
-        )
-      );
     });
 
     if (!hasPermission) {

@@ -5,7 +5,11 @@ import { Email } from '../../../domain/user/value-objects/email.vo';
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '../../../domain/user/entities/role.entity';
-import { Permission, PermissionAction } from '../../../domain/user/entities/permission.entity';
+import { Permission } from '../../../domain/user/entities/permission.entity';
+import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
+import { Resource } from '../../../domain/user/value-objects/resource.vo';
+import { RoleType } from '../../../domain/user/value-objects/role-type.vo';
+import { EntityDeleteException, EntitySaveException } from '../../../domain/common/exceptions/domain.exception';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -136,7 +140,7 @@ export class PrismaUserRepository implements UserRepository {
       });
     } catch (error) {
       this.logger.error(`Error saving user: ${error.message}`);
-      throw new Error(`Failed to save user: ${error.message}`);
+      throw new EntitySaveException('User', error.message);
     }
   }
 
@@ -173,7 +177,7 @@ export class PrismaUserRepository implements UserRepository {
       });
     } catch (error) {
       this.logger.error(`Error deleting user: ${error.message}`);
-      throw new Error(`Failed to delete user: ${error.message}`);
+      throw new EntityDeleteException('User', error.message);
     }
   }
 
@@ -188,8 +192,8 @@ export class PrismaUserRepository implements UserRepository {
         return Permission.create({
           name: permissionData.name,
           description: permissionData.description,
-          resource: permissionData.resource,
-          action: permissionData.action as PermissionAction,
+          resource: Resource.create(permissionData.resource),
+          action: PermissionAction.create(permissionData.action),
           createdAt: permissionData.createdAt,
           updatedAt: permissionData.updatedAt,
         }, permissionData.id);
@@ -199,6 +203,8 @@ export class PrismaUserRepository implements UserRepository {
         name: roleData.name,
         description: roleData.description,
         permissions: permissions,
+        type: RoleType.create(roleData.type),
+        isDefault: roleData.isDefault,
         createdAt: roleData.createdAt,
         updatedAt: roleData.updatedAt,
       }, roleData.id);

@@ -17,7 +17,8 @@ import {
   ApiResponse as SwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Resource, PermissionAction } from '../../../domain/user/entities/permission.entity';
+import { ResourceType } from '../../../domain/user/value-objects/resource.vo';
+import { ActionType } from '../../../domain/user/value-objects/permission-action.vo';
 import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../../frameworks/nest/guards/permissions.guard';
 import { RequirePermissions, createPermissionString } from '../../../frameworks/nest/decorators/permissions.decorator';
@@ -42,7 +43,7 @@ export class RoleController {
 
   @Post()
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(Resource.ROLE, PermissionAction.CREATE))
+  @RequirePermissions(createPermissionString(ResourceType.ROLE, ActionType.CREATE))
   @ApiOperation({ summary: 'Create a new role' })
   @SwaggerResponse({
     status: 201,
@@ -62,7 +63,7 @@ export class RoleController {
 
   @Get()
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(Resource.ROLE, PermissionAction.READ))
+  @RequirePermissions(createPermissionString(ResourceType.ROLE, ActionType.READ))
   @ApiOperation({ summary: 'Get all roles' })
   @ApiQuery({
     name: 'page',
@@ -96,7 +97,7 @@ export class RoleController {
 
   @Get(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(Resource.ROLE, PermissionAction.READ))
+  @RequirePermissions(createPermissionString(ResourceType.ROLE, ActionType.READ))
   @ApiOperation({ summary: 'Get a role by ID' })
   @SwaggerResponse({
     status: 200,
@@ -111,7 +112,7 @@ export class RoleController {
 
   @Put(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(Resource.ROLE, PermissionAction.UPDATE))
+  @RequirePermissions(createPermissionString(ResourceType.ROLE, ActionType.UPDATE))
   @ApiOperation({ summary: 'Update a role' })
   @SwaggerResponse({
     status: 200,

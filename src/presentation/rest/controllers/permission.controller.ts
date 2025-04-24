@@ -19,7 +19,8 @@ import {
   ApiResponse as SwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Resource } from '../../../domain/user/entities/permission.entity';
+import { ResourceType, Resource } from '../../../domain/user/value-objects/resource.vo';
+import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
 import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../../frameworks/nest/guards/permissions.guard';
 import { RequirePermissions, createPermissionString } from '../../../frameworks/nest/decorators/permissions.decorator';
@@ -44,7 +45,7 @@ export class PermissionController {
 
   @Post()
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(Resource.PERMISSION, 'create' as any))
+  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, 'create'))
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new permission' })
   @SwaggerResponse({
@@ -58,7 +59,7 @@ export class PermissionController {
     const command = new CreatePermissionCommand(
       request.name,
       request.description,
-      request.resource as Resource,
+      request.resource,
       request.action,
     );
 
@@ -68,14 +69,14 @@ export class PermissionController {
 
   @Get()
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(Resource.PERMISSION, 'read' as any))
+  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, 'read'))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all permissions' })
   @ApiQuery({
     name: 'resource',
     required: false,
     description: 'Filter permissions by resource',
-    enum: Resource,
+    enum: ResourceType,
   })
   @ApiQuery({
     name: 'page',
@@ -95,7 +96,7 @@ export class PermissionController {
     type: [PermissionResponse],
   })
   async getPermissions(
-    @Query('resource') resource?: Resource,
+    @Query('resource') resource?: ResourceType,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ): Promise<ApiResponse<PermissionResponse[]>> {
@@ -110,7 +111,7 @@ export class PermissionController {
 
   @Get(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(Resource.PERMISSION, 'read' as any))
+  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, 'read'))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a permission by ID' })
   @SwaggerResponse({
@@ -126,7 +127,7 @@ export class PermissionController {
 
   @Put(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(Resource.PERMISSION, 'update' as any))
+  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, 'update'))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update a permission' })
   @SwaggerResponse({
@@ -143,7 +144,7 @@ export class PermissionController {
       id,
       request.name,
       request.description,
-      request.resource as Resource,
+      request.resource,
       request.action,
     );
 

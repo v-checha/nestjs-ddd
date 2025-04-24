@@ -6,6 +6,7 @@ import { RoleRepository } from '../../../../domain/user/repositories/role-reposi
 import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
 import { Role } from '../../../../domain/user/entities/role.entity';
 import { RoleMapper } from '../../mappers/role.mapper';
+import { InvalidRoleException } from '../../../../domain/common/exceptions/domain.exception';
 
 @CommandHandler(CreateRoleCommand)
 export class CreateRoleHandler implements ICommandHandler<CreateRoleCommand, RoleDto> {
@@ -21,7 +22,7 @@ export class CreateRoleHandler implements ICommandHandler<CreateRoleCommand, Rol
     // Check if role with the same name already exists
     const existingRole = await this.roleRepository.findByName(command.name);
     if (existingRole) {
-      throw new Error(`Role with name ${command.name} already exists`);
+      throw new InvalidRoleException(`Role with name ${command.name} already exists`);
     }
 
     // Get permissions by IDs

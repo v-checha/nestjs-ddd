@@ -1,4 +1,5 @@
-import { Role, RoleType } from '../entities/role.entity';
+import { Role } from '../entities/role.entity';
+import { RoleType } from '../value-objects/role-type.vo';
 
 export interface PaginatedResult<T> {
   data: T[];

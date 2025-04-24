@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PermissionResponse } from './permission.response';
+import { RoleTypeEnum } from '../../../../domain/user/value-objects/role-type.vo';
 
 export class RoleResponse {
   @ApiProperty({
@@ -19,6 +20,19 @@ export class RoleResponse {
     description: 'The description of the role',
   })
   description: string;
+
+  @ApiProperty({
+    enum: RoleTypeEnum,
+    example: RoleTypeEnum.ADMIN,
+    description: 'The type of the role',
+  })
+  type: RoleTypeEnum;
+
+  @ApiProperty({
+    example: false,
+    description: 'Whether this role is the default role for new users',
+  })
+  isDefault: boolean;
 
   @ApiProperty({
     type: [PermissionResponse],

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PermissionAction } from '../../../../domain/user/entities/permission.entity';
+import { ActionType } from '../../../../domain/user/value-objects/permission-action.vo'; 
+import { ResourceType } from '../../../../domain/user/value-objects/resource.vo';
 
 export class PermissionResponse {
   @ApiProperty({
@@ -21,17 +22,18 @@ export class PermissionResponse {
   description: string;
 
   @ApiProperty({
-    example: 'user',
+    enum: ResourceType,
+    example: ResourceType.USER,
     description: 'The resource the permission applies to',
   })
-  resource: string;
+  resource: ResourceType;
 
   @ApiProperty({
-    enum: PermissionAction,
-    example: PermissionAction.CREATE,
+    enum: ActionType,
+    example: ActionType.CREATE,
     description: 'The action the permission allows',
   })
-  action: PermissionAction;
+  action: ActionType;
 
   @ApiProperty({
     example: '2023-01-01T00:00:00.000Z',

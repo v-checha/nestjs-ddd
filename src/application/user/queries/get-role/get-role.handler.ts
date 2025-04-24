@@ -4,6 +4,7 @@ import { RoleDto } from '../../dtos/role.dto';
 import { Inject } from '@nestjs/common';
 import { RoleRepository } from '../../../../domain/user/repositories/role-repository.interface';
 import { RoleMapper } from '../../mappers/role.mapper';
+import { EntityNotFoundException } from '../../../../domain/common/exceptions/domain.exception';
 
 @QueryHandler(GetRoleQuery)
 export class GetRoleHandler implements IQueryHandler<GetRoleQuery, RoleDto> {
@@ -17,7 +18,7 @@ export class GetRoleHandler implements IQueryHandler<GetRoleQuery, RoleDto> {
     const role = await this.roleRepository.findById(query.id);
 
     if (!role) {
-      throw new Error(`Role with id ${query.id} not found`);
+      throw new EntityNotFoundException('Role', query.id);
     }
 
     return this.roleMapper.toDto(role);

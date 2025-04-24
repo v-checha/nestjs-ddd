@@ -1,14 +1,20 @@
 import { SetMetadata } from '@nestjs/common';
-import { Resource, PermissionAction } from '../../../domain/user/entities/permission.entity';
+import { Resource } from '../../../domain/user/value-objects/resource.vo';
+import { PermissionAction, ActionType } from '../../../domain/user/value-objects/permission-action.vo';
 
-export type PermissionString = `${Resource}:${PermissionAction}`;
+export type PermissionString = string;
+
+export const PERMISSIONS_KEY = 'permissions';
 
 export const RequirePermissions = (...permissions: PermissionString[]) => 
-  SetMetadata('permissions', permissions);
+  SetMetadata(PERMISSIONS_KEY, permissions);
   
 /**
  * Helper function to create a permission string in the correct format
  */
-export const createPermissionString = (resource: Resource, action: PermissionAction): PermissionString => {
-  return `${resource}:${action}` as PermissionString;
+export const createPermissionString = (resource: string | Resource, action: string | PermissionAction): PermissionString => {
+  const resourceStr = resource instanceof Resource ? resource.toString() : resource;
+  const actionStr = action instanceof PermissionAction ? action.toString() : action;
+  
+  return `${resourceStr}:${actionStr}`;
 };

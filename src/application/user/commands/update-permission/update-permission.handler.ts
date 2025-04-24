@@ -4,6 +4,10 @@ import { PermissionDto } from '../../dtos/permission.dto';
 import { Inject } from '@nestjs/common';
 import { PermissionRepository } from '../../../../domain/user/repositories/permission-repository.interface';
 import { PermissionMapper } from '../../mappers/permission.mapper';
+import { Resource } from '../../../../domain/user/value-objects/resource.vo';
+import { PermissionAction } from '../../../../domain/user/value-objects/permission-action.vo';
+import { Permission } from '../../../../domain/user/entities/permission.entity';
+import { EntityNotFoundException } from '../../../../domain/common/exceptions/domain.exception';
 
 @CommandHandler(UpdatePermissionCommand)
 export class UpdatePermissionHandler
@@ -19,28 +23,22 @@ export class UpdatePermissionHandler
     // Find the permission
     const permission = await this.permissionRepository.findById(command.id);
     if (!permission) {
-      throw new Error(`Permission with id ${command.id} not found`);
+      throw new EntityNotFoundException('Permission', command.id);
     }
 
-    // Update basic properties
-    if (command.name !== undefined && command.description !== undefined) {
-      permission.updateDetails(command.name, command.description);
-    }
-
-    // Update resource and action if provided
-    if (command.resource !== undefined) {
-      permission.props.resource = command.resource;
-      permission.props.updatedAt = new Date();
-    }
-
-    if (command.action !== undefined) {
-      permission.props.action = command.action;
-      permission.props.updatedAt = new Date();
-    }
+    // Update the permission
+    const updatedPermission = Permission.create({
+      name: command.name || permission.name,
+      description: command.description || permission.description,
+      resource: command.resource || permission.resource.value,
+      action: command.action || permission.action.value,
+      createdAt: permission.createdAt,
+      updatedAt: new Date(),
+    }, permission.id);
 
     // Save the updated permission
-    await this.permissionRepository.save(permission);
+    await this.permissionRepository.save(updatedPermission);
 
-    return this.permissionMapper.toDto(permission);
+    return this.permissionMapper.toDto(updatedPermission);
   }
 }

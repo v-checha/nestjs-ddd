@@ -1,6 +1,7 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PermissionAction, Resource } from '../../../../domain/user/entities/permission.entity';
+import { ResourceType } from '../../../../domain/user/value-objects/resource.vo';
+import { ActionType } from '../../../../domain/user/value-objects/permission-action.vo';
 
 export class CreatePermissionRequest {
   @ApiProperty({
@@ -20,20 +21,20 @@ export class CreatePermissionRequest {
   description: string;
 
   @ApiProperty({
-    enum: Resource,
-    example: Resource.USER,
+    enum: ResourceType,
+    example: ResourceType.USER,
     description: 'The resource the permission applies to',
   })
-  @IsEnum(Resource, { message: 'Resource must be a valid resource type' })
+  @IsEnum(ResourceType, { message: 'Resource must be a valid resource type' })
   @IsNotEmpty({ message: 'Resource is required' })
-  resource: Resource;
+  resource: ResourceType;
 
   @ApiProperty({
-    enum: PermissionAction,
-    example: PermissionAction.CREATE,
+    enum: ActionType,
+    example: ActionType.CREATE,
     description: 'The action the permission allows',
   })
-  @IsEnum(PermissionAction, { message: 'Action must be a valid permission action' })
+  @IsEnum(ActionType, { message: 'Action must be a valid permission action' })
   @IsNotEmpty({ message: 'Action is required' })
-  action: PermissionAction;
+  action: ActionType;
 }

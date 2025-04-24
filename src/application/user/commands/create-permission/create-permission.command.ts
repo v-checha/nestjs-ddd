@@ -1,11 +1,12 @@
 import { ICommand } from '@nestjs/cqrs';
-import { PermissionAction, Resource } from '../../../../domain/user/entities/permission.entity';
+import { ActionType } from '../../../../domain/user/value-objects/permission-action.vo';
+import { ResourceType } from '../../../../domain/user/value-objects/resource.vo';
 
 export class CreatePermissionCommand implements ICommand {
   constructor(
     public readonly name: string,
     public readonly description: string,
-    public readonly resource: Resource,
-    public readonly action: PermissionAction,
+    public readonly resource: ResourceType,
+    public readonly action: ActionType,
   ) {}
 }

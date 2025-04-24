@@ -1,9 +1,9 @@
 import { IQuery } from '@nestjs/cqrs';
-import { Resource } from '../../../../domain/user/entities/permission.entity';
+import { ResourceType } from '../../../../domain/user/value-objects/resource.vo';
 
 export class ListPermissionsQuery implements IQuery {
   constructor(
-    public readonly resource?: Resource,
+    public readonly resource?: ResourceType,
     public readonly page?: number,
     public readonly limit?: number
   ) {}
