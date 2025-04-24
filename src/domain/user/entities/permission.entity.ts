@@ -46,23 +46,26 @@ export class Permission extends Entity<PermissionProps> {
     return this.props.updatedAt ?? new Date();
   }
 
-  public static create(props: {
-    name: string;
-    description: string;
-    resource: string | Resource;
-    action: string | PermissionAction;
-    createdAt?: Date;
-    updatedAt?: Date;
-  }, id?: string): Permission {
-    const resource = props.resource instanceof Resource 
-      ? props.resource 
-      : Resource.create(props.resource);
-      
-    const action = props.action instanceof PermissionAction
-      ? props.action
-      : PermissionAction.create(props.action);
+  public static create(
+    props: {
+      name: string;
+      description: string;
+      resource: string | Resource;
+      action: string | PermissionAction;
+      createdAt?: Date;
+      updatedAt?: Date;
+    },
+    id?: string,
+  ): Permission {
+    const resource =
+      props.resource instanceof Resource ? props.resource : Resource.create(props.resource);
 
-    const name = props.name 
+    const action =
+      props.action instanceof PermissionAction
+        ? props.action
+        : PermissionAction.create(props.action);
+
+    const name = props.name
       ? PermissionName.create(props.name)
       : PermissionName.fromResourceAndAction(resource, action);
 
@@ -98,13 +101,17 @@ export class Permission extends Entity<PermissionProps> {
   /**
    * Creates a permission from a string representation in the format "resource:action"
    */
-  public static fromString(permissionString: string, name?: string, description?: string): Permission {
+  public static fromString(
+    permissionString: string,
+    name?: string,
+    description?: string,
+  ): Permission {
     const [resourceStr, actionStr] = permissionString.split(':');
-    
+
     if (!resourceStr || !actionStr) {
       throw new Error(`Invalid permission string: ${permissionString}`);
     }
-    
+
     return Permission.create({
       name: name || permissionString,
       description: description || `Permission to ${actionStr} ${resourceStr}`,

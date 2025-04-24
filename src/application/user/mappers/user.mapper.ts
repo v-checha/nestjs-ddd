@@ -22,6 +22,6 @@ export class UserMapper {
   }
 
   toDtoList(users: User[]): UserDto[] {
-    return users.map((user) => this.toDto(user));
+    return users.map(user => this.toDto(user));
   }
 }

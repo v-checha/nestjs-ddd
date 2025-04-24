@@ -1,4 +1,11 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Inject, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+  Inject,
+  Logger,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UserRepository } from '../../../domain/user/repositories/user-repository.interface';
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
@@ -51,16 +58,16 @@ export class PermissionsGuard implements CanActivate {
     // The format is 'resource:action' (e.g., 'user:create', 'role:read')
     const hasPermission = requiredPermissions.some(permissionString => {
       const [resourceStr, actionStr] = permissionString.split(':');
-      
+
       if (!resourceStr || !actionStr) {
         this.logger.warn(`Invalid permission string format: ${permissionString}`);
         return false;
       }
-      
+
       try {
         const resource = Resource.create(resourceStr);
         const action = PermissionAction.create(actionStr);
-        
+
         // Check if the user has this permission through any of their roles
         return userEntity.roles.some(role => role.hasPermissionFor(resource, action));
       } catch (error) {

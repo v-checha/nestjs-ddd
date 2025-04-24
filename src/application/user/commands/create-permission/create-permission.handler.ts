@@ -8,7 +8,9 @@ import { PermissionMapper } from '../../mappers/permission.mapper';
 import { PermissionAlreadyExistsException } from '../../../common/exceptions/application.exception';
 
 @CommandHandler(CreatePermissionCommand)
-export class CreatePermissionHandler implements ICommandHandler<CreatePermissionCommand, PermissionDto> {
+export class CreatePermissionHandler
+  implements ICommandHandler<CreatePermissionCommand, PermissionDto>
+{
   constructor(
     @Inject('PermissionRepository')
     private readonly permissionRepository: PermissionRepository,

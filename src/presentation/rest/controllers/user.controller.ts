@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { Public } from '../../../frameworks/nest/decorators/public.decorator';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -91,12 +82,7 @@ export class UserController {
     @Param('id') id: string,
     @Body() request: Partial<CreateUserRequest>,
   ): Promise<UserResponse> {
-    const command = new UpdateUserCommand(
-      id,
-      request.firstName,
-      request.lastName,
-      request.email,
-    );
+    const command = new UpdateUserCommand(id, request.firstName, request.lastName, request.email);
 
     return this.commandBus.execute(command);
   }
@@ -115,10 +101,7 @@ export class UserController {
     @Param('id') userId: string,
     @Body() request: AssignRoleRequest,
   ): Promise<UserResponse> {
-    const command = new AssignRoleToUserCommand(
-      userId,
-      request.roleId,
-    );
+    const command = new AssignRoleToUserCommand(userId, request.roleId);
 
     return this.commandBus.execute(command);
   }

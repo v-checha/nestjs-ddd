@@ -32,9 +32,7 @@ export class StripePaymentService {
   }
 
   async confirmPayment(paymentIntentId: string): Promise<boolean> {
-    const paymentIntent = await this.stripe.paymentIntents.retrieve(
-      paymentIntentId,
-    );
+    const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
 
     return paymentIntent.status === 'succeeded';
   }

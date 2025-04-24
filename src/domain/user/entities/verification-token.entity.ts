@@ -48,10 +48,7 @@ export class VerificationToken extends Entity<VerificationTokenProps> {
     return new Date() > this.props.expiresAt;
   }
 
-  public static create(
-    props: VerificationTokenProps,
-    id?: string,
-  ): VerificationToken {
+  public static create(props: VerificationTokenProps, id?: string): VerificationToken {
     return new VerificationToken(props, id ?? uuidv4());
   }
 

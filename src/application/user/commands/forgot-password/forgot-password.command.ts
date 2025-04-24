@@ -1,7 +1,5 @@
 import { ICommand } from '@nestjs/cqrs';
 
 export class ForgotPasswordCommand implements ICommand {
-  constructor(
-    public readonly email: string,
-  ) {}
+  constructor(public readonly email: string) {}
 }

@@ -35,7 +35,7 @@ export class Meta {
     required: false,
   })
   timestamp?: string;
-  
+
   @ApiProperty({
     description: 'Additional message for the response',
     example: 'Operation completed successfully',
@@ -162,17 +162,17 @@ export class ApiResponse<T> {
     if (data !== undefined) {
       this.data = data;
     }
-    
+
     if (meta) {
       this.meta = meta;
     } else {
       this.meta = new Meta();
     }
-    
+
     if (links) {
       this.links = links;
     }
-    
+
     if (errors && errors.length > 0) {
       this.errors = errors;
     }
@@ -184,7 +184,7 @@ export class ApiResponse<T> {
 
   static error(errors: ErrorDetail[] | string[] | string, meta?: Meta): ApiResponse<null> {
     let errorDetails: ErrorDetail[];
-    
+
     if (typeof errors === 'string') {
       errorDetails = [new ErrorDetail('ERROR', errors)];
     } else if (Array.isArray(errors) && typeof errors[0] === 'string') {
@@ -192,7 +192,7 @@ export class ApiResponse<T> {
     } else {
       errorDetails = errors as ErrorDetail[];
     }
-    
+
     return new ApiResponse<null>(undefined, meta, undefined, errorDetails);
   }
 
@@ -202,7 +202,7 @@ export class ApiResponse<T> {
     totalPages: number,
     totalCount: number,
     pageSize: number,
-    baseUrl: string
+    baseUrl: string,
   ): ApiResponse<T[]> {
     const meta = new Meta({
       currentPage,

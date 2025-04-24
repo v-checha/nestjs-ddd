@@ -2,6 +2,31 @@
 
 This project demonstrates a Domain-Driven Design (DDD) architecture implementation using NestJS, following clean architecture principles.
 
+## Documentation
+
+### Architecture
+
+- [Architecture Overview](docs/architecture/overview.md)
+
+### Domain Layer
+
+- [Entities](docs/entities/overview.md)
+- [Value Objects](docs/value-objects/overview.md)
+- [Repositories](docs/repositories/overview.md)
+
+### Application Layer
+
+- [CQRS Pattern](docs/application/cqrs.md)
+
+### Infrastructure Layer
+
+- [Exception Handling](docs/infrastructure/exceptions.md)
+
+### API and Security
+
+- [REST API Documentation](docs/api/rest-api.md)
+- [JWT Authentication](docs/authentication/jwt.md)
+
 ## Project Structure
 
 The application is organized into several layers:
@@ -87,14 +112,30 @@ npm run start:dev
 The application will be available at `http://localhost:3000/api`
 Swagger documentation will be available at `http://localhost:3000/api/docs`
 
-## API Endpoints
+## Development
 
-### Users
+### Code Style
 
-- `POST /api/users` - Create a new user
-- `GET /api/users` - Get all users
-- `GET /api/users/:id` - Get a user by ID
-- `PUT /api/users/:id` - Update a user
+This project uses ESLint and Prettier for code formatting and linting:
+
+```bash
+# Run linting
+npm run lint
+
+# Fix linting issues
+npm run lint --fix
+
+# Format code with Prettier
+npm run format
+```
+
+### Database Seeding
+
+To seed the database with initial data:
+
+```bash
+npm run db:seed
+```
 
 ## License
 

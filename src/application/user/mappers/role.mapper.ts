@@ -21,6 +21,6 @@ export class RoleMapper {
   }
 
   toDtoList(roles: Role[]): RoleDto[] {
-    return roles.map((role) => this.toDto(role));
+    return roles.map(role => this.toDto(role));
   }
 }

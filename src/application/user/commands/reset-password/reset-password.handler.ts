@@ -11,9 +11,7 @@ import { VerificationTokenType } from '../../../../domain/user/entities/verifica
 import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
 
 @CommandHandler(ResetPasswordCommand)
-export class ResetPasswordHandler
-  implements ICommandHandler<ResetPasswordCommand, UserDto>
-{
+export class ResetPasswordHandler implements ICommandHandler<ResetPasswordCommand, UserDto> {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
@@ -28,7 +26,7 @@ export class ResetPasswordHandler
     try {
       // Verify the token
       const verificationToken = await this.tokenService.verifyToken(command.token);
-      
+
       if (verificationToken.type !== VerificationTokenType.PASSWORD_RESET) {
         throw new UnauthorizedException('Invalid token type');
       }
@@ -36,7 +34,7 @@ export class ResetPasswordHandler
       // Find the user
       const userId = verificationToken.userId;
       const user = await this.userRepository.findById(UserId.create(userId));
-      
+
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -49,7 +47,7 @@ export class ResetPasswordHandler
 
       // Mark token as used
       verificationToken.markAsUsed();
-      
+
       // Save both entities
       await this.userRepository.save(user);
       await this.verificationTokenRepository.save(verificationToken);

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ActionType } from '../../../../domain/user/value-objects/permission-action.vo'; 
+import { ActionType } from '../../../../domain/user/value-objects/permission-action.vo';
 import { ResourceType } from '../../../../domain/user/value-objects/resource.vo';
 
 export class PermissionResponse {

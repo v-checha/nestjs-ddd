@@ -20,11 +20,19 @@ export class RoleName extends ValueObject<RoleNameProps> {
     }
 
     if (name.length < 3) {
-      throw new InvalidValueObjectException('RoleName', name, 'Role name must be at least 3 characters long');
+      throw new InvalidValueObjectException(
+        'RoleName',
+        name,
+        'Role name must be at least 3 characters long',
+      );
     }
 
     if (name.length > 50) {
-      throw new InvalidValueObjectException('RoleName', name, 'Role name must be less than 50 characters long');
+      throw new InvalidValueObjectException(
+        'RoleName',
+        name,
+        'Role name must be less than 50 characters long',
+      );
     }
 
     return new RoleName({ value: name });

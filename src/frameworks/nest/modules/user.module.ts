@@ -32,8 +32,8 @@ import { PrismaVerificationTokenRepository } from '../../../infrastructure/persi
     },
   ],
   exports: [
-    'UserRepository', 
-    'RoleRepository', 
+    'UserRepository',
+    'RoleRepository',
     'PermissionRepository',
     'RefreshTokenRepository',
     'VerificationTokenRepository',

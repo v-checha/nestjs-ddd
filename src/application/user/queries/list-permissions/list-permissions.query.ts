@@ -5,6 +5,6 @@ export class ListPermissionsQuery implements IQuery {
   constructor(
     public readonly resource?: ResourceType,
     public readonly page?: number,
-    public readonly limit?: number
+    public readonly limit?: number,
   ) {}
 }

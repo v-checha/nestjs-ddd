@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { VerificationToken, VerificationTokenType } from '../../../domain/user/entities/verification-token.entity';
+import {
+  VerificationToken,
+  VerificationTokenType,
+} from '../../../domain/user/entities/verification-token.entity';
 import { VerificationTokenRepository } from '../../../domain/user/repositories/verification-token-repository.interface';
 
 @Injectable()
@@ -51,10 +54,13 @@ export class PrismaVerificationTokenRepository implements VerificationTokenRepos
     }
   }
 
-  async findByUserId(userId: string, type: VerificationTokenType): Promise<VerificationToken | null> {
+  async findByUserId(
+    userId: string,
+    type: VerificationTokenType,
+  ): Promise<VerificationToken | null> {
     try {
       const tokenData = await this.prisma.verificationToken.findFirst({
-        where: { 
+        where: {
           userId,
           type,
           isUsed: false,
@@ -76,10 +82,7 @@ export class PrismaVerificationTokenRepository implements VerificationTokenRepos
     try {
       await this.prisma.verificationToken.deleteMany({
         where: {
-          OR: [
-            { expiresAt: { lt: new Date() } },
-            { isUsed: true },
-          ],
+          OR: [{ expiresAt: { lt: new Date() } }, { isUsed: true }],
         },
       });
     } catch (error) {

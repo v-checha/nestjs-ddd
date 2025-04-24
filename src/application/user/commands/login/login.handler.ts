@@ -9,9 +9,7 @@ import { TokenService } from '../../../../infrastructure/services/token.service'
 import { AuthTokenDto } from '../../dtos/auth-token.dto';
 
 @CommandHandler(LoginCommand)
-export class LoginHandler
-  implements ICommandHandler<LoginCommand, AuthTokenDto>
-{
+export class LoginHandler implements ICommandHandler<LoginCommand, AuthTokenDto> {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
@@ -22,7 +20,7 @@ export class LoginHandler
 
   async execute(command: LoginCommand): Promise<AuthTokenDto> {
     const email = Email.create(command.email);
-    
+
     // Find user by email
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
@@ -30,10 +28,7 @@ export class LoginHandler
     }
 
     // Validate password
-    const isPasswordValid = await this.passwordService.compare(
-      command.password,
-      user.password,
-    );
+    const isPasswordValid = await this.passwordService.compare(command.password, user.password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');

@@ -37,7 +37,7 @@ export class Role extends Entity<RoleProps> {
   get type(): RoleType {
     return this.props.type;
   }
-  
+
   get isDefault(): boolean {
     return this.props.isDefault;
   }
@@ -54,18 +54,22 @@ export class Role extends Entity<RoleProps> {
     return this.props.updatedAt ?? new Date();
   }
 
-  public static create(props: {
-    name: string;
-    description: string;
-    permissions: Permission[];
-    type?: string | RoleType;
-    isDefault?: boolean;
-    createdAt?: Date;
-    updatedAt?: Date;
-  }, id?: string): Role {
-    const roleType = props.type instanceof RoleType
-      ? props.type
-      : RoleType.create(props.type || RoleTypeEnum.USER);
+  public static create(
+    props: {
+      name: string;
+      description: string;
+      permissions: Permission[];
+      type?: string | RoleType;
+      isDefault?: boolean;
+      createdAt?: Date;
+      updatedAt?: Date;
+    },
+    id?: string,
+  ): Role {
+    const roleType =
+      props.type instanceof RoleType
+        ? props.type
+        : RoleType.create(props.type || RoleTypeEnum.USER);
 
     return new Role(
       {
@@ -80,16 +84,19 @@ export class Role extends Entity<RoleProps> {
       id,
     );
   }
-  
+
   /**
    * Create a predefined role with appropriate permissions
    */
-  public static createPredefinedRole(type: string | RoleType, permissions: Permission[] = []): Role {
+  public static createPredefinedRole(
+    type: string | RoleType,
+    permissions: Permission[] = [],
+  ): Role {
     const roleType = type instanceof RoleType ? type : RoleType.create(type);
     let name = '';
     let description = '';
     let isDefault = false;
-    
+
     switch (roleType.value) {
       case RoleTypeEnum.SUPER_ADMIN:
         name = 'Super Administrator';
@@ -113,7 +120,7 @@ export class Role extends Entity<RoleProps> {
         description = 'Limited access to public resources';
         break;
     }
-    
+
     return Role.create({
       name,
       description,
@@ -153,29 +160,29 @@ export class Role extends Entity<RoleProps> {
   public removePermission(permissionId: string): void {
     this.props = {
       ...this.props,
-      permissions: this.props.permissions.filter(
-        (permission) => permission.id !== permissionId,
-      ),
+      permissions: this.props.permissions.filter(permission => permission.id !== permissionId),
       updatedAt: new Date(),
     };
   }
 
   public hasPermission(permissionId: string): boolean {
-    return this.props.permissions.some((permission) => permission.id === permissionId);
+    return this.props.permissions.some(permission => permission.id === permissionId);
   }
 
   public hasPermissionFor(resource: string | Resource, action: string | PermissionAction): boolean {
     const resourceObj = resource instanceof Resource ? resource : Resource.create(resource);
     const actionObj = action instanceof PermissionAction ? action : PermissionAction.create(action);
-    
+
     // Super admin has access to everything
     if (this.type.isSuperAdmin()) {
       return true;
     }
-    
-    return this.props.permissions.some(permission => 
-      permission.resource.value === resourceObj.value && 
-      (permission.action.value === actionObj.value || permission.action.value === ActionType.MANAGE)
+
+    return this.props.permissions.some(
+      permission =>
+        permission.resource.value === resourceObj.value &&
+        (permission.action.value === actionObj.value ||
+          permission.action.value === ActionType.MANAGE),
     );
   }
 }

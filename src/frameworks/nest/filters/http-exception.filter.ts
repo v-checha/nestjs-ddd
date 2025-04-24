@@ -52,10 +52,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       error = 'InternalServerError';
 
       // Log the unknown error
-      this.logger.error(
-        `Unhandled exception: ${exception}`,
-        (exception as Error)?.stack,
-      );
+      this.logger.error(`Unhandled exception: ${exception}`, (exception as Error)?.stack);
     }
 
     response.status(status).json({

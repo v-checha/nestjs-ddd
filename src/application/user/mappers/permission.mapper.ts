@@ -19,6 +19,6 @@ export class PermissionMapper {
   }
 
   toDtoList(permissions: Permission[]): PermissionDto[] {
-    return permissions.map((permission) => this.toDto(permission));
+    return permissions.map(permission => this.toDto(permission));
   }
 }

@@ -21,7 +21,7 @@ export class EmailService {
       this.logger.log(`Sending email to: ${options.to}`);
       this.logger.log(`Subject: ${options.subject}`);
       this.logger.log(`Content: ${options.html}`);
-      
+
       // Simulate successful email sending
       return true;
     } catch (error) {
@@ -30,13 +30,10 @@ export class EmailService {
     }
   }
 
-  async sendVerificationEmail(
-    email: string,
-    verificationToken: string,
-  ): Promise<boolean> {
+  async sendVerificationEmail(email: string, verificationToken: string): Promise<boolean> {
     const frontendUrl = this.configService.get<string>('app.frontendUrl');
     const verificationUrl = `${frontendUrl}/verify-email?token=${verificationToken}`;
-    
+
     return this.sendEmail({
       to: email,
       subject: 'Verify Your Email Address',
@@ -50,13 +47,10 @@ export class EmailService {
     });
   }
 
-  async sendPasswordResetEmail(
-    email: string,
-    resetToken: string,
-  ): Promise<boolean> {
+  async sendPasswordResetEmail(email: string, resetToken: string): Promise<boolean> {
     const frontendUrl = this.configService.get<string>('app.frontendUrl');
     const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
-    
+
     return this.sendEmail({
       to: email,
       subject: 'Reset Your Password',

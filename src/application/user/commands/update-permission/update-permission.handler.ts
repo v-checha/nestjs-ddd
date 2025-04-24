@@ -27,14 +27,17 @@ export class UpdatePermissionHandler
     }
 
     // Update the permission
-    const updatedPermission = Permission.create({
-      name: command.name || permission.name,
-      description: command.description || permission.description,
-      resource: command.resource || permission.resource.value,
-      action: command.action || permission.action.value,
-      createdAt: permission.createdAt,
-      updatedAt: new Date(),
-    }, permission.id);
+    const updatedPermission = Permission.create(
+      {
+        name: command.name || permission.name,
+        description: command.description || permission.description,
+        resource: command.resource || permission.resource.value,
+        action: command.action || permission.action.value,
+        createdAt: permission.createdAt,
+        updatedAt: new Date(),
+      },
+      permission.id,
+    );
 
     // Save the updated permission
     await this.permissionRepository.save(updatedPermission);

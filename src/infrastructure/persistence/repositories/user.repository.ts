@@ -9,7 +9,10 @@ import { Permission } from '../../../domain/user/entities/permission.entity';
 import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
 import { Resource } from '../../../domain/user/value-objects/resource.vo';
 import { RoleType } from '../../../domain/user/value-objects/role-type.vo';
-import { EntityDeleteException, EntitySaveException } from '../../../domain/common/exceptions/domain.exception';
+import {
+  EntityDeleteException,
+  EntitySaveException,
+} from '../../../domain/common/exceptions/domain.exception';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -77,11 +80,10 @@ export class PrismaUserRepository implements UserRepository {
     }
   }
 
-
   async save(user: User): Promise<void> {
     try {
       // Start a transaction to handle user and role/permission relationships
-      await this.prisma.$transaction(async (prisma) => {
+      await this.prisma.$transaction(async prisma => {
         // Upsert the user
         await prisma.user.upsert({
           where: { id: user.id },
@@ -110,14 +112,14 @@ export class PrismaUserRepository implements UserRepository {
             where: {
               userId: user.id,
               NOT: {
-                roleId: { in: existingRoleIds }
-              }
-            }
+                roleId: { in: existingRoleIds },
+              },
+            },
           });
         } else {
           // If no roles are assigned, remove all roles
           await prisma.userRole.deleteMany({
-            where: { userId: user.id }
+            where: { userId: user.id },
           });
         }
 
@@ -130,7 +132,7 @@ export class PrismaUserRepository implements UserRepository {
                 roleId: role.id,
               },
             },
-            update: {},  // No updates needed for the relationship
+            update: {}, // No updates needed for the relationship
             create: {
               userId: user.id,
               roleId: role.id,
@@ -163,7 +165,7 @@ export class PrismaUserRepository implements UserRepository {
           },
         },
       });
-      return users.map((user) => this.mapToDomain(user));
+      return users.map(user => this.mapToDomain(user));
     } catch (error) {
       this.logger.error(`Error finding all users: ${error.message}`);
       return [];
@@ -183,33 +185,41 @@ export class PrismaUserRepository implements UserRepository {
 
   private mapToDomain(userData: any): User {
     // Map the roles and their permissions
-    const roles = userData.userRoles?.map((userRole: any) => {
-      const roleData = userRole.role;
-      
-      // Map the permissions
-      const permissions = roleData.rolePermissions?.map((rolePermission: any) => {
-        const permissionData = rolePermission.permission;
-        return Permission.create({
-          name: permissionData.name,
-          description: permissionData.description,
-          resource: Resource.create(permissionData.resource),
-          action: PermissionAction.create(permissionData.action),
-          createdAt: permissionData.createdAt,
-          updatedAt: permissionData.updatedAt,
-        }, permissionData.id);
+    const roles =
+      userData.userRoles?.map((userRole: any) => {
+        const roleData = userRole.role;
+
+        // Map the permissions
+        const permissions =
+          roleData.rolePermissions?.map((rolePermission: any) => {
+            const permissionData = rolePermission.permission;
+            return Permission.create(
+              {
+                name: permissionData.name,
+                description: permissionData.description,
+                resource: Resource.create(permissionData.resource),
+                action: PermissionAction.create(permissionData.action),
+                createdAt: permissionData.createdAt,
+                updatedAt: permissionData.updatedAt,
+              },
+              permissionData.id,
+            );
+          }) || [];
+
+        return Role.create(
+          {
+            name: roleData.name,
+            description: roleData.description,
+            permissions: permissions,
+            type: RoleType.create(roleData.type),
+            isDefault: roleData.isDefault,
+            createdAt: roleData.createdAt,
+            updatedAt: roleData.updatedAt,
+          },
+          roleData.id,
+        );
       }) || [];
-      
-      return Role.create({
-        name: roleData.name,
-        description: roleData.description,
-        permissions: permissions,
-        type: RoleType.create(roleData.type),
-        isDefault: roleData.isDefault,
-        createdAt: roleData.createdAt,
-        updatedAt: roleData.updatedAt,
-      }, roleData.id);
-    }) || [];
-    
+
     return User.create(
       {
         email: Email.create(userData.email),

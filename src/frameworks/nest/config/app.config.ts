@@ -13,16 +13,15 @@ export function setupApp(app: INestApplication) {
   app.setGlobalPrefix(apiPrefix);
 
   // Apply global pipes, filters, and interceptors
-  app.useGlobalPipes(new ValidationPipe({ 
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true
-  }));
-  app.useGlobalFilters(new ApiExceptionFilter());
-  app.useGlobalInterceptors(
-    new LoggingInterceptor(),
-    new HttpResponseInterceptor(),
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
   );
+  app.useGlobalFilters(new ApiExceptionFilter());
+  app.useGlobalInterceptors(new LoggingInterceptor(), new HttpResponseInterceptor());
 
   return app;
 }

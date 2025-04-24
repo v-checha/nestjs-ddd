@@ -8,7 +8,9 @@ import { PermissionMapper } from '../../mappers/permission.mapper';
 import { Resource } from '../../../../domain/user/value-objects/resource.vo';
 
 @QueryHandler(ListPermissionsQuery)
-export class ListPermissionsHandler implements IQueryHandler<ListPermissionsQuery, PaginatedResult<PermissionDto>> {
+export class ListPermissionsHandler
+  implements IQueryHandler<ListPermissionsQuery, PaginatedResult<PermissionDto>>
+{
   constructor(
     @Inject('PermissionRepository')
     private readonly permissionRepository: PermissionRepository,
@@ -17,7 +19,7 @@ export class ListPermissionsHandler implements IQueryHandler<ListPermissionsQuer
 
   async execute(query: ListPermissionsQuery): Promise<PaginatedResult<PermissionDto>> {
     const { page = 1, limit = 10, resource } = query;
-    
+
     if (resource) {
       const resourceObj = Resource.create(resource);
       const permissions = await this.permissionRepository.findByResource(resourceObj);
@@ -26,17 +28,17 @@ export class ListPermissionsHandler implements IQueryHandler<ListPermissionsQuer
         total: permissions.length,
         page: 1,
         limit: permissions.length,
-        totalPages: 1
+        totalPages: 1,
       };
     }
-    
+
     const result = await this.permissionRepository.findAll(page, limit);
     return {
       data: this.permissionMapper.toDtoList(result.data),
       total: result.total,
       page: result.page,
       limit: result.limit,
-      totalPages: result.totalPages
+      totalPages: result.totalPages,
     };
   }
 }

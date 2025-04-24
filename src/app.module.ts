@@ -16,16 +16,16 @@ import databaseConfig from './infrastructure/config/database.config';
       isGlobal: true,
       load: [appConfig, databaseConfig],
     }),
-    
+
     // Infrastructure
     LoggingModule,
     PrismaModule,
     EventBusModule,
-    
+
     // Application & Domain (via framework modules)
     UserModule,
     AuthModule,
-    
+
     // Presentation
     RestModule,
   ],

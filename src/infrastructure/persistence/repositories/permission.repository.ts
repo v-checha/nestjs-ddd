@@ -4,7 +4,10 @@ import { Permission } from '../../../domain/user/entities/permission.entity';
 import { Resource } from '../../../domain/user/value-objects/resource.vo';
 import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
 import { PrismaService } from '../prisma/prisma.service';
-import { EntityDeleteException, EntitySaveException } from '../../../domain/common/exceptions/domain.exception';
+import {
+  EntityDeleteException,
+  EntitySaveException,
+} from '../../../domain/common/exceptions/domain.exception';
 import { PrismaPermissionModel } from '../prisma/prisma.types';
 import { PaginatedResult } from '../../../domain/user/repositories/role-repository.interface';
 
@@ -50,7 +53,7 @@ export class PrismaPermissionRepository implements PermissionRepository {
       const permissions = await this.prisma.permission.findMany({
         where: { resource: resourceStr },
       });
-      return permissions.map((permission) => this.mapToDomain(permission));
+      return permissions.map(permission => this.mapToDomain(permission));
     } catch (error) {
       this.logger.error(`Error finding permissions by resource: ${error.message}`);
       return [];
@@ -63,21 +66,24 @@ export class PrismaPermissionRepository implements PermissionRepository {
       const permissions = await this.prisma.permission.findMany({
         where: { action: actionStr },
       });
-      return permissions.map((permission) => this.mapToDomain(permission));
+      return permissions.map(permission => this.mapToDomain(permission));
     } catch (error) {
       this.logger.error(`Error finding permissions by action: ${error.message}`);
       return [];
     }
   }
 
-  async findByResourceAndAction(resource: Resource, action: PermissionAction): Promise<Permission | null> {
+  async findByResourceAndAction(
+    resource: Resource,
+    action: PermissionAction,
+  ): Promise<Permission | null> {
     try {
       const resourceStr = resource.toString();
       const actionStr = action.toString();
       const permissionData = await this.prisma.permission.findFirst({
-        where: { 
+        where: {
           resource: resourceStr,
-          action: actionStr
+          action: actionStr,
         },
       });
 
@@ -120,7 +126,7 @@ export class PrismaPermissionRepository implements PermissionRepository {
   async saveMany(permissions: Permission[]): Promise<void> {
     try {
       // Start a transaction to save multiple permissions
-      await this.prisma.$transaction(async (prisma) => {
+      await this.prisma.$transaction(async prisma => {
         for (const permission of permissions) {
           await prisma.permission.upsert({
             where: { id: permission.id },
@@ -155,19 +161,19 @@ export class PrismaPermissionRepository implements PermissionRepository {
 
       // Get total count
       const total = await this.prisma.permission.count();
-      
+
       // Calculate total pages
       const totalPages = Math.ceil(total / limit);
-      
+
       // Get paginated data
       const permissions = await this.prisma.permission.findMany({
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       });
-      
+
       return {
-        data: permissions.map((permission) => this.mapToDomain(permission)),
+        data: permissions.map(permission => this.mapToDomain(permission)),
         total,
         page,
         limit,
@@ -197,13 +203,16 @@ export class PrismaPermissionRepository implements PermissionRepository {
   }
 
   private mapToDomain(permissionData: PrismaPermissionModel): Permission {
-    return Permission.create({
-      name: permissionData.name,
-      description: permissionData.description,
-      resource: Resource.create(permissionData.resource),
-      action: PermissionAction.create(permissionData.action),
-      createdAt: permissionData.createdAt,
-      updatedAt: permissionData.updatedAt,
-    }, permissionData.id);
+    return Permission.create(
+      {
+        name: permissionData.name,
+        description: permissionData.description,
+        resource: Resource.create(permissionData.resource),
+        action: PermissionAction.create(permissionData.action),
+        createdAt: permissionData.createdAt,
+        updatedAt: permissionData.updatedAt,
+      },
+      permissionData.id,
+    );
   }
 }

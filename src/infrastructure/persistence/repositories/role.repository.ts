@@ -1,12 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PaginatedResult, RoleRepository } from '../../../domain/user/repositories/role-repository.interface';
+import {
+  PaginatedResult,
+  RoleRepository,
+} from '../../../domain/user/repositories/role-repository.interface';
 import { Role } from '../../../domain/user/entities/role.entity';
 import { RoleType } from '../../../domain/user/value-objects/role-type.vo';
 import { Permission } from '../../../domain/user/entities/permission.entity';
 import { Resource } from '../../../domain/user/value-objects/resource.vo';
 import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
 import { PrismaService } from '../prisma/prisma.service';
-import { EntityDeleteException, EntitySaveException } from '../../../domain/common/exceptions/domain.exception';
+import {
+  EntityDeleteException,
+  EntitySaveException,
+} from '../../../domain/common/exceptions/domain.exception';
 
 @Injectable()
 export class PrismaRoleRepository implements RoleRepository {
@@ -106,19 +112,19 @@ export class PrismaRoleRepository implements RoleRepository {
   async save(role: Role): Promise<void> {
     try {
       // Start a transaction to handle role and permission relationships
-      await this.prisma.$transaction(async (prisma) => {
+      await this.prisma.$transaction(async prisma => {
         // Handle scenarios where this is the new default role
         if (role.isDefault) {
           // Clear default flag on all other roles
           await prisma.role.updateMany({
-            where: { 
+            where: {
               isDefault: true,
-              NOT: { id: role.id }
+              NOT: { id: role.id },
             },
-            data: { isDefault: false }
+            data: { isDefault: false },
           });
         }
-        
+
         // Upsert the role
         await prisma.role.upsert({
           where: { id: role.id },
@@ -147,14 +153,14 @@ export class PrismaRoleRepository implements RoleRepository {
             where: {
               roleId: role.id,
               NOT: {
-                permissionId: { in: existingPermissionIds }
-              }
-            }
+                permissionId: { in: existingPermissionIds },
+              },
+            },
           });
         } else {
           // If no permissions are assigned, remove all permissions
           await prisma.rolePermission.deleteMany({
-            where: { roleId: role.id }
+            where: { roleId: role.id },
           });
         }
 
@@ -167,7 +173,7 @@ export class PrismaRoleRepository implements RoleRepository {
                 permissionId: permission.id,
               },
             },
-            update: {},  // No updates needed for the relationship
+            update: {}, // No updates needed for the relationship
             create: {
               roleId: role.id,
               permissionId: permission.id,
@@ -187,10 +193,10 @@ export class PrismaRoleRepository implements RoleRepository {
 
       // Get total count
       const total = await this.prisma.role.count();
-      
+
       // Calculate total pages
       const totalPages = Math.ceil(total / limit);
-      
+
       // Get paginated data with relationships
       const roles = await this.prisma.role.findMany({
         skip,
@@ -204,9 +210,9 @@ export class PrismaRoleRepository implements RoleRepository {
           },
         },
       });
-      
+
       return {
-        data: roles.map((role) => this.mapToDomain(role)),
+        data: roles.map(role => this.mapToDomain(role)),
         total,
         page,
         limit,
@@ -237,26 +243,33 @@ export class PrismaRoleRepository implements RoleRepository {
 
   private mapToDomain(roleData: any): Role {
     // Map the permissions
-    const permissions = roleData.rolePermissions?.map((rolePermission: any) => {
-      const permissionData = rolePermission.permission;
-      return Permission.create({
-        name: permissionData.name,
-        description: permissionData.description,
-        resource: Resource.create(permissionData.resource),
-        action: PermissionAction.create(permissionData.action),
-        createdAt: permissionData.createdAt,
-        updatedAt: permissionData.updatedAt,
-      }, permissionData.id);
-    }) || [];
-    
-    return Role.create({
-      name: roleData.name,
-      description: roleData.description,
-      permissions: permissions,
-      type: RoleType.create(roleData.type),
-      isDefault: roleData.isDefault,
-      createdAt: roleData.createdAt,
-      updatedAt: roleData.updatedAt,
-    }, roleData.id);
+    const permissions =
+      roleData.rolePermissions?.map((rolePermission: any) => {
+        const permissionData = rolePermission.permission;
+        return Permission.create(
+          {
+            name: permissionData.name,
+            description: permissionData.description,
+            resource: Resource.create(permissionData.resource),
+            action: PermissionAction.create(permissionData.action),
+            createdAt: permissionData.createdAt,
+            updatedAt: permissionData.updatedAt,
+          },
+          permissionData.id,
+        );
+      }) || [];
+
+    return Role.create(
+      {
+        name: roleData.name,
+        description: roleData.description,
+        permissions: permissions,
+        type: RoleType.create(roleData.type),
+        isDefault: roleData.isDefault,
+        createdAt: roleData.createdAt,
+        updatedAt: roleData.updatedAt,
+      },
+      roleData.id,
+    );
   }
 }

@@ -7,9 +7,7 @@ import { TokenService } from '../../../../infrastructure/services/token.service'
 import { EmailService } from '../../../../infrastructure/services/email.service';
 
 @CommandHandler(ForgotPasswordCommand)
-export class ForgotPasswordHandler
-  implements ICommandHandler<ForgotPasswordCommand, void>
-{
+export class ForgotPasswordHandler implements ICommandHandler<ForgotPasswordCommand, void> {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
@@ -21,9 +19,9 @@ export class ForgotPasswordHandler
     // Find the user by email
     const email = Email.create(command.email);
     const user = await this.userRepository.findByEmail(email);
-    
+
     // For security reasons, we don't want to reveal if a user exists
-    // So we'll just return if the user doesn't exist 
+    // So we'll just return if the user doesn't exist
     if (!user) {
       return;
     }

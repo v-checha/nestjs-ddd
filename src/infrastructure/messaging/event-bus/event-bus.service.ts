@@ -10,23 +10,16 @@ export class EventBusService {
 
   async publish(events: DomainEvent[]): Promise<void> {
     for (const event of events) {
-      await this.rabbitMQService.publishMessage(
-        this.EXCHANGE,
-        event.eventName,
-        event,
-      );
+      await this.rabbitMQService.publishMessage(this.EXCHANGE, event.eventName, event);
     }
   }
 
-  async subscribe(
-    eventName: string,
-    callback: (event: any) => Promise<void>,
-  ): Promise<void> {
+  async subscribe(eventName: string, callback: (event: any) => Promise<void>): Promise<void> {
     await this.rabbitMQService.subscribe(
       this.EXCHANGE,
       eventName,
       `queue_${eventName}`,
-      async (event) => {
+      async event => {
         await callback(event);
       },
     );

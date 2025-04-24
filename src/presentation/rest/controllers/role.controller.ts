@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
@@ -21,7 +11,10 @@ import { ResourceType } from '../../../domain/user/value-objects/resource.vo';
 import { ActionType } from '../../../domain/user/value-objects/permission-action.vo';
 import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../../frameworks/nest/guards/permissions.guard';
-import { RequirePermissions, createPermissionString } from '../../../frameworks/nest/decorators/permissions.decorator';
+import {
+  RequirePermissions,
+  createPermissionString,
+} from '../../../frameworks/nest/decorators/permissions.decorator';
 import { CreateRoleRequest } from '../dtos/request/create-role.request';
 import { UpdateRoleRequest } from '../dtos/request/update-role.request';
 import { RoleResponse } from '../dtos/response/role.response';
@@ -51,11 +44,7 @@ export class RoleController {
     type: RoleResponse,
   })
   async createRole(@Body() request: CreateRoleRequest): Promise<ApiResponse<RoleResponse>> {
-    const command = new CreateRoleCommand(
-      request.name,
-      request.description,
-      request.permissionIds,
-    );
+    const command = new CreateRoleCommand(request.name, request.description, request.permissionIds);
 
     const result = await this.commandBus.execute(command);
     return ApiResponse.success(result);

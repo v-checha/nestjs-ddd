@@ -9,9 +9,7 @@ import { UserMapper } from '../../mappers/user.mapper';
 import { EntityNotFoundException } from '../../../../domain/common/exceptions/domain.exception';
 
 @CommandHandler(AssignRoleToUserCommand)
-export class AssignRoleToUserHandler
-  implements ICommandHandler<AssignRoleToUserCommand, UserDto>
-{
+export class AssignRoleToUserHandler implements ICommandHandler<AssignRoleToUserCommand, UserDto> {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,

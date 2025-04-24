@@ -9,9 +9,7 @@ import { AuthTokenDto } from '../../dtos/auth-token.dto';
 import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
 
 @CommandHandler(RefreshTokenCommand)
-export class RefreshTokenHandler
-  implements ICommandHandler<RefreshTokenCommand, AuthTokenDto>
-{
+export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand, AuthTokenDto> {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
@@ -25,11 +23,11 @@ export class RefreshTokenHandler
     try {
       // Get and validate the refresh token
       const refreshToken = await this.tokenService.getRefreshToken(command.refreshToken);
-      
+
       // Find the user
       const userId = refreshToken.userId;
       const user = await this.userRepository.findById(UserId.create(userId));
-      
+
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -44,7 +42,7 @@ export class RefreshTokenHandler
       const newRefreshToken = await this.tokenService.generateRefreshToken(
         user.id,
         refreshToken.device,
-        refreshToken.ipAddress
+        refreshToken.ipAddress,
       );
 
       // Update login timestamp

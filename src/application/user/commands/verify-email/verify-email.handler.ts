@@ -10,9 +10,7 @@ import { VerificationTokenType } from '../../../../domain/user/entities/verifica
 import { UserId } from '../../../../domain/user/value-objects/user-id.vo';
 
 @CommandHandler(VerifyEmailCommand)
-export class VerifyEmailHandler
-  implements ICommandHandler<VerifyEmailCommand, UserDto>
-{
+export class VerifyEmailHandler implements ICommandHandler<VerifyEmailCommand, UserDto> {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
@@ -26,15 +24,15 @@ export class VerifyEmailHandler
     try {
       // Verify the token
       const verificationToken = await this.tokenService.verifyToken(command.token);
-      
+
       if (verificationToken.type !== VerificationTokenType.EMAIL_VERIFICATION) {
         throw new UnauthorizedException('Invalid token type');
       }
-      
+
       // Find the user
       const userId = verificationToken.userId;
       const user = await this.userRepository.findById(UserId.create(userId));
-      
+
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -44,7 +42,7 @@ export class VerifyEmailHandler
 
       // Mark token as used
       verificationToken.markAsUsed();
-      
+
       // Save both entities
       await this.userRepository.save(user);
       await this.verificationTokenRepository.save(verificationToken);

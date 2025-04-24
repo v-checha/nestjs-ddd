@@ -82,10 +82,7 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
     try {
       await this.prisma.refreshToken.deleteMany({
         where: {
-          OR: [
-            { expiresAt: { lt: new Date() } },
-            { isRevoked: true },
-          ],
+          OR: [{ expiresAt: { lt: new Date() } }, { isRevoked: true }],
         },
       });
     } catch (error) {

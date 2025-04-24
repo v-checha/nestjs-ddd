@@ -13,11 +13,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     console.log('RabbitMQService destroyed (mock)');
   }
 
-  async publishMessage(
-    exchange: string,
-    routingKey: string,
-    message: any,
-  ): Promise<boolean> {
+  async publishMessage(exchange: string, routingKey: string, message: any): Promise<boolean> {
     console.log(`[MOCK] Publishing message to ${exchange}.${routingKey}:`, message);
     return true;
   }

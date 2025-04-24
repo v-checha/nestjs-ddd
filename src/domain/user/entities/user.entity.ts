@@ -109,17 +109,17 @@ export class User extends AggregateRoot<UserProps> {
   }
 
   public removeRole(roleId: string): void {
-    this.props.roles = this.props.roles.filter((role) => role.id !== roleId);
+    this.props.roles = this.props.roles.filter(role => role.id !== roleId);
     this.props.updatedAt = new Date();
   }
 
   public hasRole(roleId: string): boolean {
-    return this.props.roles.some((role) => role.id === roleId);
+    return this.props.roles.some(role => role.id === roleId);
   }
 
   public hasPermission(permissionId: string): boolean {
-    return this.props.roles.some(role => 
-      role.permissions.some(permission => permission.id === permissionId)
+    return this.props.roles.some(role =>
+      role.permissions.some(permission => permission.id === permissionId),
     );
   }
 

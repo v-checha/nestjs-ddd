@@ -23,7 +23,10 @@ import { ResourceType, Resource } from '../../../domain/user/value-objects/resou
 import { PermissionAction } from '../../../domain/user/value-objects/permission-action.vo';
 import { JwtAuthGuard } from '../../../frameworks/nest/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../../frameworks/nest/guards/permissions.guard';
-import { RequirePermissions, createPermissionString } from '../../../frameworks/nest/decorators/permissions.decorator';
+import {
+  RequirePermissions,
+  createPermissionString,
+} from '../../../frameworks/nest/decorators/permissions.decorator';
 import { CreatePermissionRequest } from '../dtos/request/create-permission.request';
 import { UpdatePermissionRequest } from '../dtos/request/update-permission.request';
 import { PermissionResponse } from '../dtos/response/permission.response';

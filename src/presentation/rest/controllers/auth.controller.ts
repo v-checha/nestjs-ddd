@@ -32,9 +32,7 @@ import { ApiResponse } from '../dtos/response/api-response';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly commandBus: CommandBus,
-  ) {}
+  constructor(private readonly commandBus: CommandBus) {}
 
   @Post('register')
   @Public()
@@ -69,10 +67,7 @@ export class AuthController {
   })
   @SwaggerResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() request: LoginRequest): Promise<ApiResponse<AuthTokenResponse>> {
-    const command = new LoginCommand(
-      request.email,
-      request.password,
-    );
+    const command = new LoginCommand(request.email, request.password);
 
     const result = await this.commandBus.execute(command);
     return ApiResponse.success(result);
@@ -124,10 +119,7 @@ export class AuthController {
   @SwaggerResponse({ status: 400, description: 'Invalid token' })
   async resetPassword(@Body() request: ResetPasswordRequest): Promise<ApiResponse<UserResponse>> {
     try {
-      const command = new ResetPasswordCommand(
-        request.token,
-        request.newPassword,
-      );
+      const command = new ResetPasswordCommand(request.token, request.newPassword);
       const result = await this.commandBus.execute(command);
       return ApiResponse.success(result);
     } catch (error) {
@@ -145,7 +137,9 @@ export class AuthController {
     type: AuthTokenResponse,
   })
   @SwaggerResponse({ status: 401, description: 'Invalid refresh token' })
-  async refreshToken(@Body() request: RefreshTokenRequest): Promise<ApiResponse<AuthTokenResponse>> {
+  async refreshToken(
+    @Body() request: RefreshTokenRequest,
+  ): Promise<ApiResponse<AuthTokenResponse>> {
     try {
       const command = new RefreshTokenCommand(request.refreshToken);
       const result = await this.commandBus.execute(command);

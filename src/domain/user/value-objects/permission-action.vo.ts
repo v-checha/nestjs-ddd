@@ -24,7 +24,11 @@ export class PermissionAction extends ValueObject<PermissionActionProps> {
 
   public static create(action: ActionType | string): PermissionAction {
     if (!Object.values(ActionType).includes(action as ActionType)) {
-      throw new InvalidValueObjectException('PermissionAction', action, 'Action type not recognized');
+      throw new InvalidValueObjectException(
+        'PermissionAction',
+        action,
+        'Action type not recognized',
+      );
     }
 
     return new PermissionAction({ value: action as ActionType });

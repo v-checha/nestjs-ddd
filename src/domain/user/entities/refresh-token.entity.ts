@@ -48,10 +48,7 @@ export class RefreshToken extends Entity<RefreshTokenProps> {
     return new Date() > this.props.expiresAt;
   }
 
-  public static create(
-    props: RefreshTokenProps,
-    id?: string,
-  ): RefreshToken {
+  public static create(props: RefreshTokenProps, id?: string): RefreshToken {
     return new RefreshToken(props, id ?? uuidv4());
   }
 

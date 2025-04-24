@@ -31,7 +31,7 @@ export class UpdateRoleHandler implements ICommandHandler<UpdateRoleCommand, Rol
     // Update permissions if provided
     if (command.permissionIds !== undefined) {
       // Clear existing permissions (they'll be re-added if they're in the new list)
-      role.permissions.forEach((permission) => {
+      role.permissions.forEach(permission => {
         role.removePermission(permission.id);
       });
 

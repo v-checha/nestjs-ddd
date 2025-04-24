@@ -5,9 +5,7 @@ import { TokenService } from '../../../../infrastructure/services/token.service'
 
 @CommandHandler(LogoutCommand)
 export class LogoutHandler implements ICommandHandler<LogoutCommand, void> {
-  constructor(
-    private readonly tokenService: TokenService,
-  ) {}
+  constructor(private readonly tokenService: TokenService) {}
 
   async execute(command: LogoutCommand): Promise<void> {
     // Revoke the refresh token
