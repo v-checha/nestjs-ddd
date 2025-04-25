@@ -17,6 +17,10 @@ import { UserModule } from '@frameworks/nest/modules/user.module';
 export class RestModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // Apply auth middleware to protected routes
-    consumer.apply(AuthMiddleware).exclude('users/(.*)', 'auth/(.*)').forRoutes('*');
+    // More info - https://docs.nestjs.com/migration-guide
+    consumer
+      .apply(AuthMiddleware)
+      .exclude('users/*wildcard', 'auth/*wildcard')
+      .forRoutes('{*wildcard}');
   }
 }

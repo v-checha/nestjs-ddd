@@ -1,13 +1,14 @@
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
-import { validate } from 'class-validator';
+import { validate, ValidationError } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
+import { ClassConstructor } from 'class-transformer/types/interfaces';
 
 // Define type for validation errors
 type ValidationConstraint = Record<string, string>;
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<unknown> {
-  async transform(value: unknown, { metatype }: ArgumentMetadata) {
+  async transform(value: unknown, { metatype }: ArgumentMetadata): Promise<unknown> {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
@@ -17,7 +18,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
 
     if (errors.length > 0) {
       const messages = errors.map(
-        err =>
+        (err: ValidationError) =>
           `${err.property}: ${Object.values(err.constraints as ValidationConstraint).join(', ')}`,
       );
 
@@ -30,9 +31,9 @@ export class ValidationPipe implements PipeTransform<unknown> {
     return object;
   }
 
-  private toValidate(metatype: abstract new (...args: any[]) => any): boolean {
-    const types = [String, Boolean, Number, Array, Object];
+  private toValidate(metatype: ClassConstructor<unknown>): boolean {
+    const types: ClassConstructor<unknown>[] = [String, Boolean, Number, Array, Object];
 
-    return !types.includes(metatype as any);
+    return !types.includes(metatype);
   }
 }

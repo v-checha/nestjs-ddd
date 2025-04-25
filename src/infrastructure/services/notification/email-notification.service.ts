@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 export interface EmailOptions {
@@ -8,25 +8,43 @@ export interface EmailOptions {
   html?: string;
 }
 
+export type EmailResult = {
+  success: boolean;
+  messageId?: string;
+  error?: Error;
+};
+
 @Injectable()
 export class EmailNotificationService {
+  private readonly logger = new Logger(EmailNotificationService.name);
+
   constructor(private configService: ConfigService) {}
 
   /**
    * In a real application, this would integrate with an email service
    * like SendGrid, Mailgun, Amazon SES, etc.
    */
-  async sendEmail(options: EmailOptions): Promise<boolean> {
-    // This is a placeholder implementation
-    console.log(`Sending email to ${options.to}`);
-    console.log(`Subject: ${options.subject}`);
-    console.log(`Content: ${options.text || options.html}`);
+  async sendEmail(options: EmailOptions): Promise<EmailResult> {
+    try {
+      // This is a placeholder implementation
+      this.logger.log(`Sending email to ${options.to}`);
+      this.logger.log(`Subject: ${options.subject}`);
+      this.logger.log(`Content: ${options.text || options.html}`);
 
-    // Simulate successful sending
-    return true;
+      // Simulate successful sending
+      return {
+        success: true,
+        messageId: `mock-message-id-${Date.now()}`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error : new Error(String(error)),
+      };
+    }
   }
 
-  async sendUserWelcomeEmail(email: string, name: string): Promise<boolean> {
+  async sendUserWelcomeEmail(email: string, name: string): Promise<EmailResult> {
     return this.sendEmail({
       to: email,
       subject: 'Welcome to our platform!',
@@ -38,7 +56,7 @@ export class EmailNotificationService {
     email: string,
     orderId: string,
     totalAmount: string,
-  ): Promise<boolean> {
+  ): Promise<EmailResult> {
     return this.sendEmail({
       to: email,
       subject: `Order ${orderId} Confirmation`,

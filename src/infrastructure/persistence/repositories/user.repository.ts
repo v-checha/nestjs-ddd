@@ -10,9 +10,27 @@ import { PermissionAction } from '@domain/user/value-objects/permission-action.v
 import { Resource } from '@domain/user/value-objects/resource.vo';
 import { RoleType } from '@domain/user/value-objects/role-type.vo';
 import {
+  User as PrismaUser,
+  UserRole as PrismaUserRole,
+  RolePermission as PrismaRolePermission,
+  Role as PrismaRole,
+  Permission as PrismaPermission,
+} from '@prisma/client';
+import {
   EntityDeleteException,
   EntitySaveException,
 } from '@domain/common/exceptions/domain.exception';
+
+// Define a type for User with its relations (roles with nested permissions)
+type UserWithRelations = PrismaUser & {
+  userRoles: (PrismaUserRole & {
+    role: PrismaRole & {
+      rolePermissions: (PrismaRolePermission & {
+        permission: PrismaPermission;
+      })[];
+    };
+  })[];
+};
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -22,7 +40,7 @@ export class PrismaUserRepository implements UserRepository {
 
   async findById(id: UserId): Promise<User | null> {
     try {
-      const userData = await this.prisma.user.findUnique({
+      const userData: UserWithRelations | null = await this.prisma.user.findUnique({
         where: { id: id.value },
         include: {
           userRoles: {
@@ -43,7 +61,7 @@ export class PrismaUserRepository implements UserRepository {
 
       if (!userData) return null;
 
-      return this.mapToDomain(userData);
+      return this.mapToDomain(userData as UserWithRelations);
     } catch (error) {
       this.logger.error(`Error finding user by ID: ${error.message}`);
 
@@ -187,15 +205,15 @@ export class PrismaUserRepository implements UserRepository {
     }
   }
 
-  private mapToDomain(userData: any): User {
+  private mapToDomain(userData: UserWithRelations): User {
     // Map the roles and their permissions
     const roles =
-      userData.userRoles?.map((userRole: any) => {
+      userData.userRoles?.map(userRole => {
         const roleData = userRole.role;
 
         // Map the permissions
         const permissions =
-          roleData.rolePermissions?.map((rolePermission: any) => {
+          roleData.rolePermissions?.map(rolePermission => {
             const permissionData = rolePermission.permission;
 
             return Permission.create(
@@ -233,7 +251,7 @@ export class PrismaUserRepository implements UserRepository {
         password: userData.password,
         roles: roles,
         isVerified: userData.isVerified,
-        lastLogin: userData.lastLogin,
+        lastLogin: userData.lastLogin || undefined,
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
       },

@@ -8,23 +8,23 @@ import {
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiResponse, Meta, Links } from '@presentation/rest/dtos/response/api-response';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class HttpResponseInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<ApiResponse<unknown>> {
     const request = context.switchToHttp().getRequest<Request>();
-    const response = context.switchToHttp().getResponse();
+    const response = context.switchToHttp().getResponse<Response>();
     const _status = response.statusCode || HttpStatus.OK;
 
     // Get base URL for link generation
     const baseUrl = `${request.protocol}://${request.get('host')}${request.path}`;
 
     return next.handle().pipe(
-      map(data => {
+      map((data: unknown) => {
         // If data is already an ApiResponse instance, return it as is
         if (data instanceof ApiResponse) {
-          return data;
+          return data as ApiResponse<unknown>;
         }
 
         // Handle arrays (potential pagination)

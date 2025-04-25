@@ -10,6 +10,16 @@ import { Request, Response } from 'express';
 import { DomainException } from '@domain/common/exceptions/domain.exception';
 import { ApplicationException } from '@application/common/exceptions/application.exception';
 
+// Define types for HTTP exception responses
+interface HttpExceptionResponseObject {
+  message: string | string[];
+  error?: string;
+  statusCode?: number;
+  [key: string]: unknown;
+}
+
+type HttpExceptionResponse = string | HttpExceptionResponseObject;
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
@@ -26,15 +36,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       // Handle NestJS HTTP exceptions
       status = exception.getStatus();
-      const errorResponse = exception.getResponse();
-      message =
-        typeof errorResponse === 'object' && 'message' in errorResponse
-          ? (errorResponse as any).message
-          : exception.message;
-      error =
-        typeof errorResponse === 'object' && 'error' in errorResponse
-          ? (errorResponse as any).error
-          : exception.name;
+      const errorResponse = exception.getResponse() as HttpExceptionResponse;
+
+      if (typeof errorResponse === 'string') {
+        message = errorResponse;
+        error = exception.name;
+      } else {
+        message = Array.isArray(errorResponse.message)
+          ? errorResponse.message.join(', ')
+          : (errorResponse.message as string);
+        error = errorResponse.error || exception.name;
+      }
     } else if (exception instanceof DomainException) {
       // Handle domain exceptions
       status = HttpStatus.BAD_REQUEST;
@@ -51,8 +63,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message = 'Internal server error';
       error = 'InternalServerError';
 
-      // Log the unknown error
-      this.logger.error(`Unhandled exception: ${exception}`, (exception as Error)?.stack);
+      if (exception instanceof Error) {
+        // Log the unknown error with stack trace if it's an Error object
+        this.logger.error(`Unhandled exception: ${exception.message}`, exception.stack);
+      } else {
+        // Log the unknown error without stack trace
+        this.logger.error(`Unhandled exception: ${String(exception)}`);
+      }
     }
 
     response.status(status).json({

@@ -1,3 +1,4 @@
+// Define a more specific union type for allowed property values
 interface ValueObjectProps {
   [index: string]: any;
 }

@@ -91,7 +91,7 @@ const defaultUsers = [
     email: 'user@example.com',
     firstName: 'Regular',
     lastName: 'User',
-    password: 'User123!',
+    password: 'password123',
     isVerified: true,
     roleName: 'User', // Will be linked to role
   },

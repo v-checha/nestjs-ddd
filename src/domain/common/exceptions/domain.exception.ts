@@ -26,9 +26,11 @@ export class EntityNotFoundException extends DomainException {
 
 // Value object exceptions
 export class InvalidValueObjectException extends DomainException {
-  constructor(valueObjectName: string, value: any, reason?: string) {
+  constructor(valueObjectName: string, value: unknown, reason?: string) {
+    const formattedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+
     const reasonMessage = reason ? `: ${reason}` : '';
-    super(`Invalid ${valueObjectName} value: ${value}${reasonMessage}`);
+    super(`Invalid ${valueObjectName} value: ${formattedValue}${reasonMessage}`);
   }
 }
 

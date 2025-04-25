@@ -2,6 +2,14 @@ import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/com
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 
+// Define a user interface based on your application's user structure
+interface User {
+  id: string;
+  email: string;
+  // Add other properties your user object has
+  [key: string]: unknown;
+}
+
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(private reflector: Reflector) {
@@ -22,11 +30,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest(err: any, user: any, _info: any) {
+  handleRequest<T extends User>(err: Error | null, user: T | false, _info: Error | null): T {
     if (err || !user) {
       throw err || new UnauthorizedException('Authentication required');
     }
 
-    return user;
+    return user as T;
   }
 }

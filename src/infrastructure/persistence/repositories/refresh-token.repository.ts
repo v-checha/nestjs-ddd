@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RefreshToken } from '@domain/user/entities/refresh-token.entity';
 import { RefreshTokenRepository } from '@domain/user/repositories/refresh-token-repository.interface';
+import { RefreshToken as PrismaRefreshToken } from '@prisma/client';
 
 @Injectable()
 export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
@@ -40,13 +41,13 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
 
   async findByToken(token: string): Promise<RefreshToken | null> {
     try {
-      const tokenData = await this.prisma.refreshToken.findUnique({
+      const tokenData: PrismaRefreshToken | null = await this.prisma.refreshToken.findUnique({
         where: { token },
       });
 
       if (!tokenData) return null;
 
-      return this.mapToDomain(tokenData);
+      return this.mapToDomain(tokenData as PrismaRefreshToken);
     } catch (error) {
       this.logger.error(`Error finding refresh token: ${error.message}`);
 
@@ -104,15 +105,15 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
     }
   }
 
-  private mapToDomain(data: any): RefreshToken {
+  private mapToDomain(data: PrismaRefreshToken): RefreshToken {
     return RefreshToken.create(
       {
         token: data.token,
         userId: data.userId,
         issuedAt: data.issuedAt,
         expiresAt: data.expiresAt,
-        device: data.device,
-        ipAddress: data.ipAddress,
+        device: data.device || undefined,
+        ipAddress: data.ipAddress || undefined,
         isRevoked: data.isRevoked,
       },
       data.id,

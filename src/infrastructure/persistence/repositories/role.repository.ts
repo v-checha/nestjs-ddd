@@ -10,9 +10,21 @@ import { Resource } from '@domain/user/value-objects/resource.vo';
 import { PermissionAction } from '@domain/user/value-objects/permission-action.vo';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  Role as PrismaRole,
+  RolePermission as PrismaRolePermission,
+  Permission as PrismaPermission,
+} from '@prisma/client';
+import {
   EntityDeleteException,
   EntitySaveException,
 } from '@domain/common/exceptions/domain.exception';
+
+// Define a type for Role with its related permissions
+type RoleWithPermissions = PrismaRole & {
+  rolePermissions?: (PrismaRolePermission & {
+    permission: PrismaPermission;
+  })[];
+};
 
 @Injectable()
 export class PrismaRoleRepository implements RoleRepository {
@@ -246,10 +258,10 @@ export class PrismaRoleRepository implements RoleRepository {
     }
   }
 
-  private mapToDomain(roleData: any): Role {
+  private mapToDomain(roleData: RoleWithPermissions): Role {
     // Map the permissions
     const permissions =
-      roleData.rolePermissions?.map((rolePermission: any) => {
+      roleData.rolePermissions?.map(rolePermission => {
         const permissionData = rolePermission.permission;
 
         return Permission.create(

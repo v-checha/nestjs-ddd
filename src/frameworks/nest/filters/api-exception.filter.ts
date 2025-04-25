@@ -7,20 +7,26 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
-import {
-  ApiResponse,
-  ErrorDetail,
-  Meta,
-} from '@presentation/rest/dtos/response/api-response';
+import { ApiResponse, ErrorDetail, Meta } from '@presentation/rest/dtos/response/api-response';
 import { ApplicationException } from '@application/common/exceptions/application.exception';
 import { DomainException } from '@domain/common/exceptions/domain.exception';
 import { ValidationError } from 'class-validator';
+
+// Define a proper type for exception responses
+type HttpExceptionResponse = {
+  message: string | string[];
+  statusCode?: number;
+  error?: string;
+};
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(ApiExceptionFilter.name);
 
-  catch(exception: any, host: ArgumentsHost) {
+  catch(
+    exception: Error | HttpException | ApplicationException | DomainException,
+    host: ArgumentsHost,
+  ) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -37,18 +43,16 @@ export class ApiExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       // Handle NestJS HTTP exceptions
       status = exception.getStatus();
-      const exceptionResponse = exception.getResponse();
+      const exceptionResponse = exception.getResponse() as string | HttpExceptionResponse;
 
       if (typeof exceptionResponse === 'string') {
         errorMessage = exceptionResponse;
       } else {
-        const exceptionObj = exceptionResponse as Record<string, any>;
-
         // Handle validation errors (array of message strings)
-        if (Array.isArray(exceptionObj.message)) {
-          errors = this.formatValidationErrors(exceptionObj.message);
+        if (Array.isArray(exceptionResponse.message)) {
+          errors = this.formatValidationErrors(exceptionResponse.message);
         } else {
-          errorMessage = exceptionObj.message || exception.message;
+          errorMessage = exceptionResponse.message || exception.message;
         }
 
         errorCode = this.getErrorCodeFromStatus(status);
@@ -82,11 +86,11 @@ export class ApiExceptionFilter implements ExceptionFilter {
     response.status(status).json(errorResponse);
   }
 
-  private formatValidationErrors(validationErrors: any[]): ErrorDetail[] {
+  private formatValidationErrors(validationErrors: Array<ValidationError | string>): ErrorDetail[] {
     const errors: ErrorDetail[] = [];
 
     // Handle class-validator ValidationError objects
-    if (validationErrors.length > 0 && 'constraints' in validationErrors[0]) {
+    if (validationErrors.length > 0 && validationErrors[0] instanceof ValidationError) {
       (validationErrors as ValidationError[]).forEach(error => {
         const constraints = error.constraints || {};
 
@@ -96,7 +100,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
       });
     } else {
       // Handle simple string messages
-      validationErrors.forEach(message => {
+      (validationErrors as string[]).forEach(message => {
         errors.push(new ErrorDetail('VALIDATION_ERROR', message));
       });
     }

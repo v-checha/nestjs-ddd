@@ -4,6 +4,7 @@ import {
   VerificationToken,
   VerificationTokenType,
 } from '@domain/user/entities/verification-token.entity';
+import { VerificationToken as PrismaVerificationToken } from '@prisma/client';
 import { VerificationTokenRepository } from '@domain/user/repositories/verification-token-repository.interface';
 
 @Injectable()
@@ -41,9 +42,10 @@ export class PrismaVerificationTokenRepository implements VerificationTokenRepos
 
   async findByToken(token: string): Promise<VerificationToken | null> {
     try {
-      const tokenData = await this.prisma.verificationToken.findUnique({
-        where: { token },
-      });
+      const tokenData: PrismaVerificationToken | null =
+        await this.prisma.verificationToken.findUnique({
+          where: { token },
+        });
 
       if (!tokenData) return null;
 
@@ -60,15 +62,16 @@ export class PrismaVerificationTokenRepository implements VerificationTokenRepos
     type: VerificationTokenType,
   ): Promise<VerificationToken | null> {
     try {
-      const tokenData = await this.prisma.verificationToken.findFirst({
-        where: {
-          userId,
-          type,
-          isUsed: false,
-          expiresAt: { gt: new Date() },
-        },
-        orderBy: { issuedAt: 'desc' },
-      });
+      const tokenData: PrismaVerificationToken | null =
+        await this.prisma.verificationToken.findFirst({
+          where: {
+            userId,
+            type,
+            isUsed: false,
+            expiresAt: { gt: new Date() },
+          },
+          orderBy: { issuedAt: 'desc' },
+        });
 
       if (!tokenData) return null;
 
@@ -104,7 +107,7 @@ export class PrismaVerificationTokenRepository implements VerificationTokenRepos
     }
   }
 
-  private mapToDomain(data: any): VerificationToken {
+  private mapToDomain(data: PrismaVerificationToken): VerificationToken {
     return VerificationToken.create(
       {
         token: data.token,

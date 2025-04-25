@@ -3,9 +3,16 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { setupApp } from '@frameworks/nest/config/app.config';
 import { setupSwagger } from '@frameworks/nest/config/swagger.config';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // Create a new logger instance
+  const logger = new Logger('Bootstrap');
+
+  // Create the application with logger enabled
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'log', 'debug', 'verbose'],
+  });
 
   // Setup app configuration (global pipes, filters, etc.)
   setupApp(app);
@@ -21,8 +28,15 @@ async function bootstrap() {
   const port = configService.get<number>('app.port', 3000);
 
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
-  console.log(`Swagger is available at: http://localhost:${port}/api/docs`);
+
+  // Use the Nest.js logger instead of console.log
+  logger.log(`Application is running on: http://localhost:${port}`);
+  logger.log(`Swagger is available at: http://localhost:${port}/api/docs`);
 }
 
-bootstrap();
+bootstrap().catch(err => {
+  // Handle bootstrap errors with the logger
+  const logger = new Logger('Bootstrap');
+  logger.error(`Failed to start application: ${err.message}`, err.stack);
+  process.exit(1);
+});
