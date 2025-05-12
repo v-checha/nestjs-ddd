@@ -23,6 +23,11 @@ model User {
   userRoles          UserRole[]
   refreshTokens      RefreshToken[]
   verificationTokens VerificationToken[]
+
+  // Chat related
+  sentMessages        Message[]           @relation("SentMessages")
+  privateChats        PrivateChatUser[]
+  groupChats          GroupChatUser[]
 }
 
 model Permission {
@@ -94,4 +99,72 @@ model VerificationToken {
 
   @@index([userId])
   @@index([token])
+}
+
+// Chat Models
+model PrivateChat {
+  id        String           @id
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  participants PrivateChatUser[]
+  messages   Message[]
+}
+
+model GroupChat {
+  id        String        @id
+  name      String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  participants GroupChatUser[]
+  messages   Message[]
+}
+
+model PrivateChatUser {
+  chatId    String
+  userId    String
+  joinedAt  DateTime      @default(now())
+  isActive  Boolean       @default(true)
+  chat      PrivateChat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([chatId, userId])
+}
+
+model GroupChatUser {
+  chatId    String
+  userId    String
+  joinedAt  DateTime     @default(now())
+  isAdmin   Boolean      @default(false)
+  isActive  Boolean      @default(true)
+  chat      GroupChat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([chatId, userId])
+}
+
+model Message {
+  id        String       @id
+  content   String
+  senderId  String
+  sender    User         @relation("SentMessages", fields: [senderId], references: [id])
+  privateChatId String?
+  privateChat PrivateChat? @relation(fields: [privateChatId], references: [id], onDelete: Cascade)
+  groupChatId String?
+  groupChat GroupChat?   @relation(fields: [groupChatId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  readByUsers MessageReadStatus[]
+
+  @@index([senderId])
+  @@index([privateChatId])
+  @@index([groupChatId])
+}
+
+model MessageReadStatus {
+  messageId String
+  userId    String
+  readAt    DateTime     @default(now())
+  message   Message      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@id([messageId, userId])
 }

@@ -19,6 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ResourceType } from '@domain/user/value-objects/resource.vo';
+import { ActionType } from '@domain/user/value-objects/permission-action.vo';
 import { JwtAuthGuard } from '@frameworks/nest/guards/jwt-auth.guard';
 import { PermissionsGuard } from '@frameworks/nest/guards/permissions.guard';
 import {
@@ -46,7 +47,7 @@ export class PermissionController {
 
   @Post()
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, 'create'))
+  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, ActionType.CREATE))
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new permission' })
   @SwaggerResponse({
@@ -71,7 +72,7 @@ export class PermissionController {
 
   @Get()
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, 'read'))
+  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, ActionType.READ))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all permissions' })
   @ApiQuery({
@@ -114,7 +115,7 @@ export class PermissionController {
 
   @Get(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, 'read'))
+  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, ActionType.READ))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a permission by ID' })
   @SwaggerResponse({
@@ -131,7 +132,7 @@ export class PermissionController {
 
   @Put(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, 'update'))
+  @RequirePermissions(createPermissionString(ResourceType.PERMISSION, ActionType.UPDATE))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update a permission' })
   @SwaggerResponse({

@@ -29,6 +29,8 @@ export class PermissionsGuard implements CanActivate {
       context.getClass(),
     ]);
 
+    console.log(requiredPermissions);
+
     // If no permissions are required, allow access
     if (!requiredPermissions || requiredPermissions.length === 0) {
       return true;
@@ -48,11 +50,15 @@ export class PermissionsGuard implements CanActivate {
       throw new UnauthorizedException('User not found');
     }
 
+    console.log(JSON.stringify(userEntity, null, 2));
+
     // Check if the user has super_admin role - they have access to everything
     const isSuperAdmin = userEntity.roles.some(role => role.type.isSuperAdmin());
     if (isSuperAdmin) {
       return true;
     }
+
+    console.log(isSuperAdmin);
 
     // Check if the user has any of the required permissions
     // The format is 'resource:action' (e.g., 'user:create', 'role:read')
@@ -77,6 +83,8 @@ export class PermissionsGuard implements CanActivate {
         return false;
       }
     });
+
+    console.log(hasPermission);
 
     if (!hasPermission) {
       throw new UnauthorizedException('Insufficient permissions');

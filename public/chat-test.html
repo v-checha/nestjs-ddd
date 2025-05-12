@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .auth-container {
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+        .sidebar {
+            width: 250px;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+        }
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .controls {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .chat-item {
+            padding: 10px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .chat-item:hover {
+            background-color: #eee;
+        }
+        .chat-item.active {
+            background-color: #e0e0e0;
+        }
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            max-width: 70%;
+        }
+        .message.sent {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .message.received {
+            background-color: #f1f0f0;
+            align-self: flex-start;
+        }
+        .message-form {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .message-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        .tab.active {
+            border-bottom: 2px solid #4CAF50;
+            font-weight: bold;
+        }
+        .read-status {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 2px;
+        }
+        .timestamp {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 2px;
+        }
+        .notification {
+            padding: 10px;
+            background-color: #f8dcdc;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div id="login-form">
+            <h3>Login</h3>
+            <input type="email" id="email" placeholder="Email" value="admin@example.com">
+            <input type="password" id="password" placeholder="Password" value="Admin123!">
+            <button id="login-btn">Login</button>
+        </div>
+        <div id="user-info" style="display: none;">
+            <span id="logged-user"></span>
+            <button id="logout-btn">Logout</button>
+        </div>
+    </div>
+
+    <div class="container" id="chat-container" style="display: none;">
+        <div class="sidebar">
+            <div class="tabs">
+                <div class="tab active" data-tab="private">Private</div>
+                <div class="tab" data-tab="group">Group</div>
+            </div>
+            <div class="chat-list" id="chat-list">
+                <!-- Chat items will be dynamically added here -->
+            </div>
+            <div class="controls">
+                <button id="new-chat-btn">New Chat</button>
+            </div>
+        </div>
+        <div class="chat-area">
+            <div class="chat-header">
+                <h3 id="chat-title">Select a chat</h3>
+                <div id="chat-actions" style="display: none;">
+                    <button id="chat-info-btn">Chat Info</button>
+                </div>
+            </div>
+            <div class="messages" id="messages">
+                <!-- Messages will be dynamically added here -->
+                <div class="notification">Select a chat to start messaging</div>
+            </div>
+            <form class="message-form" id="message-form" style="display: none;">
+                <input type="text" class="message-input" id="message-input" placeholder="Type a message...">
+                <button type="submit" id="send-btn">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="new-chat-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div style="background-color: white; margin: 15% auto; padding: 20px; width: 50%; border-radius: 5px;">
+            <h3 id="modal-title">New Private Chat</h3>
+
+            <div id="private-chat-form">
+                <label for="recipient-id">Recipient:</label>
+                <select id="recipient-id">
+                    <!-- User options will be populated here -->
+                </select>
+            </div>
+
+            <div id="group-chat-form" style="display: none;">
+                <label for="group-name">Group Name:</label>
+                <input type="text" id="group-name">
+
+                <div>
+                    <h4>Add Members:</h4>
+                    <div id="group-members-list">
+                        <!-- User checkboxes will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button id="create-chat-btn">Create</button>
+                <button id="cancel-chat-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-info-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div style="background-color: white; margin: 15% auto; padding: 20px; width: 50%; border-radius: 5px;">
+            <h3>Chat Information</h3>
+
+            <div id="chat-info-content">
+                <!-- Chat information will be displayed here -->
+            </div>
+
+            <div id="group-chat-controls" style="display: none; margin-top: 20px;">
+                <h4>Add Members:</h4>
+                <div>
+                    <select id="new-member-id">
+                        <!-- User options will be populated here -->
+                    </select>
+                    <button id="add-member-btn">Add</button>
+                </div>
+
+                <h4>Members:</h4>
+                <div id="members-list">
+                    <!-- Members list will be populated here -->
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button id="close-info-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+    <script>
+        // State
+        let currentUser = null;
+        let authToken = null;
+        let socket = null;
+        let users = [];
+        let chats = {
+            private: [],
+            group: []
+        };
+        let activeChat = null;
+        let activeTab = 'private';
+
+        // DOM Elements
+        const loginForm = document.getElementById('login-form');
+        const userInfo = document.getElementById('user-info');
+        const loggedUser = document.getElementById('logged-user');
+        const chatContainer = document.getElementById('chat-container');
+        const chatList = document.getElementById('chat-list');
+        const chatTitle = document.getElementById('chat-title');
+        const messagesContainer = document.getElementById('messages');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const chatActions = document.getElementById('chat-actions');
+        const tabs = document.querySelectorAll('.tab');
+
+        // Event Listeners
+        document.getElementById('login-btn').addEventListener('click', login);
+        document.getElementById('logout-btn').addEventListener('click', logout);
+        document.getElementById('new-chat-btn').addEventListener('click', showNewChatModal);
+        document.getElementById('create-chat-btn').addEventListener('click', createChat);
+        document.getElementById('cancel-chat-btn').addEventListener('click', closeNewChatModal);
+        document.getElementById('chat-info-btn').addEventListener('click', showChatInfo);
+        document.getElementById('close-info-btn').addEventListener('click', closeChatInfoModal);
+        document.getElementById('add-member-btn').addEventListener('click', addMemberToGroup);
+        messageForm.addEventListener('submit', sendMessage);
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                activeTab = tab.dataset.tab;
+                renderChatList();
+
+                // Update new chat modal title
+                document.getElementById('modal-title').textContent =
+                    activeTab === 'private' ? 'New Private Chat' : 'New Group Chat';
+
+                // Show/hide appropriate form
+                document.getElementById('private-chat-form').style.display =
+                    activeTab === 'private' ? 'block' : 'none';
+                document.getElementById('group-chat-form').style.display =
+                    activeTab === 'group' ? 'block' : 'none';
+            });
+        });
+
+        // API Functions
+        async function makeRequest(endpoint, method = 'GET', body = null) {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            const options = {
+                method,
+                headers
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/${endpoint}`, options);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'An error occurred');
+                }
+
+                return data.data;
+            } catch (error) {
+                console.error('API error:', error);
+                showNotification(error.message || 'An error occurred');
+                throw error;
+            }
+        }
+
+        // Authentication Functions
+        async function login() {
+            try {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                const loginData = await makeRequest('auth/login', 'POST', { email, password });
+                authToken = loginData.token;
+                currentUser = { id: loginData.userId, email: loginData.email };
+
+                // Show user info
+                loggedUser.textContent = `Logged in as: ${currentUser.email}`;
+                loginForm.style.display = 'none';
+                userInfo.style.display = 'block';
+                chatContainer.style.display = 'flex';
+
+                // Connect to WebSocket
+                connectWebSocket();
+
+                // Load initial data
+                await Promise.all([
+                    loadUsers(),
+                    loadChats()
+                ]);
+
+                renderChatList();
+            } catch (error) {
+                showNotification('Login failed: ' + (error.message || 'Invalid credentials'));
+            }
+        }
+
+        function logout() {
+            // Disconnect from WebSocket
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+
+            // Clear state
+            currentUser = null;
+            authToken = null;
+            chats = { private: [], group: [] };
+            activeChat = null;
+
+            // Update UI
+            loginForm.style.display = 'block';
+            userInfo.style.display = 'none';
+            chatContainer.style.display = 'none';
+            renderChatList();
+            renderMessages([]);
+        }
+
+        // WebSocket Functions
+        function connectWebSocket() {
+            console.log('Connecting to WebSocket with token:', authToken);
+            // Connect to the chat namespace as defined in the gateway
+            socket = io('http://localhost:3000/chat', {
+                auth: {
+                    token: authToken
+                }
+            });
+
+            socket.on('connect', () => {
+                console.log('Connected to WebSocket server');
+                showNotification('Connected to chat server', 2000);
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from WebSocket server');
+                showNotification('Disconnected from chat server');
+            });
+
+            socket.on('error', (error) => {
+                console.error('WebSocket error:', error);
+                showNotification('WebSocket error: ' + error.message);
+            });
+
+            // Chat events based on ChatGateway implementation
+
+            // Message events from the ChatGateway
+            socket.on('messageReceived', (message) => {
+                // Remove any sending indicators when a message is received
+                const sendingIndicators = document.querySelectorAll('[id^="sending-indicator-"]');
+                sendingIndicators.forEach(indicator => {
+                    indicator.remove();
+                });
+
+                // Handle the new message
+                handleNewMessage(message);
+            });
+
+            socket.on('messageRead', handleMessageRead);
+
+            // Handle acknowledgements from the ChatGateway
+            socket.on('messageSent', (messageData) => {
+                console.log('Message successfully sent and saved:', messageData);
+
+                // Remove any sending indicators
+                const sendingIndicators = document.querySelectorAll('[id^="sending-indicator-"]');
+                sendingIndicators.forEach(indicator => {
+                    indicator.remove();
+                });
+
+                // We no longer update temporary messages here because
+                // we're not adding optimistic messages to the DOM anymore
+            });
+
+            // Join/Leave chat acknowledgements
+            socket.on('joinedChat', (data) => {
+                console.log('Successfully joined chat:', data);
+            });
+
+            socket.on('leftChat', (data) => {
+                console.log('Successfully left chat:', data);
+            });
+
+            // Custom events for our application (might be emitted by notifyChat/notifyUsers methods)
+            socket.on('chat.created', handleNewChat);
+            socket.on('group.member.added', handleGroupMemberAdded);
+            socket.on('group.member.removed', handleGroupMemberRemoved);
+
+            // Debug all incoming events
+            socket.onAny((event, ...args) => {
+                console.log(`WebSocket event received: ${event}`, args);
+            });
+        }
+
+        // Chat Functions
+        async function loadUsers() {
+            try {
+                users = await makeRequest('users');
+            } catch (error) {
+                console.error('Failed to load users:', error);
+            }
+        }
+
+        async function loadChats() {
+            try {
+                console.log('Loading chats...');
+                // Use the general chat endpoint now that permissions are set up
+                const chatData = await makeRequest('chats');
+                console.log('Received chats from server:', chatData);
+
+                // API returns { privateChats: [], groupChats: [] }
+                if (chatData && chatData.privateChats && chatData.groupChats) {
+                    chats.private = chatData.privateChats || [];
+                    chats.group = chatData.groupChats || [];
+                } else {
+                    // Fallback if response format is different
+                    console.warn('Unexpected format for chat data. Expected { privateChats, groupChats }');
+                    chats.private = [];
+                    chats.group = [];
+                }
+
+                console.log('Chats data:', { private: chats.private, group: chats.group });
+
+                // If empty, add placeholders for better user experience
+                if (chats.private.length === 0) {
+                    console.log('No private chats found. Use the "New Chat" button to create one.');
+                }
+
+                if (chats.group.length === 0) {
+                    console.log('No group chats found. Use the "New Chat" button to create one.');
+                }
+            } catch (error) {
+                console.error('Failed to load chats:', error);
+            }
+        }
+
+        function renderChatList() {
+            chatList.innerHTML = '';
+
+            const currentChats = chats[activeTab] || [];
+            console.log(`Rendering ${activeTab} chats:`, currentChats);
+
+            if (currentChats.length === 0) {
+                const emptyItem = document.createElement('div');
+                emptyItem.textContent = `No ${activeTab} chats available`;
+                emptyItem.style.padding = '10px';
+                emptyItem.style.fontStyle = 'italic';
+                emptyItem.style.color = '#888';
+                chatList.appendChild(emptyItem);
+                return;
+            }
+
+            currentChats.forEach(chat => {
+                console.log(`Processing chat:`, chat);
+                const chatItem = document.createElement('div');
+                chatItem.className = 'chat-item';
+                if (activeChat && activeChat.id === chat.id) {
+                    chatItem.classList.add('active');
+                }
+
+                let title;
+                if (activeTab === 'private') {
+                    // Find the other user in the private chat
+                    console.log('Private chat participants:', chat.participants);
+                    const otherUser = chat.participants?.find(p => p.userId !== currentUser.id);
+                    title = otherUser ? otherUser.userName || 'User' : 'Unknown User';
+                } else {
+                    title = chat.name || 'Unnamed Group';
+                }
+
+                chatItem.innerHTML = `
+                    <div><strong>${title}</strong></div>
+                    <div style="font-size: 0.8em; color: #888;">
+                        ${chat.lastMessage ? chat.lastMessage.content.substring(0, 30) + (chat.lastMessage.content.length > 30 ? '...' : '') : 'No messages yet'}
+                    </div>
+                    ${chat.unreadCount ? `<div style="font-weight: bold; color: #4CAF50;">${chat.unreadCount} unread</div>` : ''}
+                `;
+
+                chatItem.addEventListener('click', () => selectChat(chat));
+                chatList.appendChild(chatItem);
+            });
+        }
+
+        function selectChat(chat) {
+            // If we had a previous chat active, leave that chat room
+            if (activeChat && socket) {
+                socket.emit('leaveChat', activeChat.id, (response) => {
+                    console.log('Left previous chat:', response);
+                });
+            }
+
+            // Set the new active chat
+            activeChat = chat;
+
+            // Join the new chat room via WebSocket
+            if (socket) {
+                socket.emit('joinChat', chat.id, (response) => {
+                    console.log('Joined chat room:', response);
+                });
+            }
+
+            // Update UI
+            renderChatList();
+            renderChatHeader();
+            loadMessages(chat.id);
+            messageForm.style.display = 'flex';
+            chatActions.style.display = 'block';
+        }
+
+        function renderChatHeader() {
+            if (!activeChat) {
+                chatTitle.textContent = 'Select a chat';
+                return;
+            }
+
+            if (activeTab === 'private') {
+                const otherUser = activeChat.participants.find(p => p.id !== currentUser.id);
+                chatTitle.textContent = otherUser ? otherUser.email : 'Unknown User';
+            } else {
+                chatTitle.textContent = activeChat.name;
+            }
+        }
+
+        async function loadMessages(chatId) {
+            try {
+                console.log(`Loading messages for chat ID: ${chatId}`);
+                const response = await makeRequest(`chats/${chatId}/messages`);
+                console.log('Messages API response:', response);
+
+                // The API might return either an array of messages directly
+                // or an object with a messages property
+                let messages = [];
+                if (Array.isArray(response)) {
+                    messages = response;
+                } else if (response && Array.isArray(response.messages)) {
+                    messages = response.messages;
+                } else {
+                    console.warn('Unexpected messages format:', response);
+                }
+
+                console.log('Processed messages:', messages);
+                renderMessages(messages);
+
+                // Mark unread messages as read for all messages that aren't read yet
+                const unreadMessages = messages.filter(m => !m.readAt && m.senderId !== currentUser.id);
+                console.log('Unread messages to mark as read:', unreadMessages);
+
+                if (unreadMessages.length > 0) {
+                    // Get message IDs to mark as read
+                    const unreadMessageIds = unreadMessages.map(m => m.id);
+
+                    // Use WebSocket to mark messages as read
+                    markMessagesAsRead(chatId, unreadMessageIds);
+                }
+            } catch (error) {
+                console.error('Failed to load messages:', error);
+                renderMessages([]);
+            }
+        }
+
+        function renderMessages(messages) {
+            console.log('Rendering messages:', messages);
+            messagesContainer.innerHTML = '';
+
+            if (!messages || messages.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'notification';
+                emptyMessage.textContent = 'No messages yet. Start the conversation!';
+                messagesContainer.appendChild(emptyMessage);
+                return;
+            }
+
+            messages.forEach(message => {
+                console.log('Processing message:', message);
+                const messageElement = document.createElement('div');
+
+                // Check if current user is the sender
+                const isSentByCurrentUser = message.senderId === currentUser.id;
+                messageElement.className = `message ${isSentByCurrentUser ? 'sent' : 'received'}`;
+
+                // Determine sender name
+                let senderName = 'Unknown User';
+                if (isSentByCurrentUser) {
+                    senderName = 'You';
+                } else if (message.sender) {
+                    // Sender could be an object with email, name, or userName property
+                    senderName = message.sender.email || message.sender.name ||
+                               message.sender.userName || 'Unknown User';
+                }
+
+                // Create timestamp
+                const timestamp = message.createdAt ? new Date(message.createdAt).toLocaleString() :
+                                 'Unknown time';
+
+                // Create read status
+                let readStatus = '';
+                if (isSentByCurrentUser) {
+                    readStatus = '<div class="read-status">Sent</div>';
+                    if (message.readAt) {
+                        readStatus = `<div class="read-status">Read ${new Date(message.readAt).toLocaleString()}</div>`;
+                    }
+                }
+
+                messageElement.innerHTML = `
+                    <div><strong>${senderName}</strong></div>
+                    <div>${message.content || 'Empty message'}</div>
+                    <div class="timestamp">${timestamp}</div>
+                    ${readStatus}
+                `;
+
+                messagesContainer.appendChild(messageElement);
+            });
+
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            console.log('Messages rendered successfully');
+        }
+
+        async function sendMessage(event) {
+            event.preventDefault();
+
+            if (!activeChat || !messageInput.value.trim() || !socket) {
+                if (!socket) {
+                    showNotification('Not connected to chat server');
+                }
+                return;
+            }
+
+            try {
+                const messageContent = messageInput.value.trim();
+                console.log(`Sending message to chat ${activeChat.id} via WebSocket: ${messageContent}`);
+
+                const message = {
+                    content: messageContent,
+                    chatId: activeChat.id
+                };
+
+                // IMPORTANT: We no longer add the message to DOM here
+                // This is to avoid duplicate messages - the server will send back the message via WebSocket
+                // and handleNewMessage will add it to the DOM
+
+                // Use WebSocket to send the message - event name must match the Gateway's @SubscribeMessage
+                socket.emit('sendMessage', message, (acknowledgement) => {
+                    console.log('Message send acknowledgement:', acknowledgement);
+
+                    // Only if there's an error, show notification
+                    if (acknowledgement && acknowledgement.event === 'error') {
+                        showNotification('Error sending message: ' +
+                            (acknowledgement.data && acknowledgement.data.message || 'Unknown error'));
+                    }
+                });
+
+                // Clear input immediately (don't wait for server response)
+                messageInput.value = '';
+
+                // Add a temporary "sending" indicator that will be removed when the server confirms
+                const sendingIndicator = document.createElement('div');
+                sendingIndicator.className = 'notification';
+                sendingIndicator.style.fontStyle = 'italic';
+                sendingIndicator.style.textAlign = 'center';
+                sendingIndicator.style.margin = '10px 0';
+                sendingIndicator.textContent = 'Sending message...';
+                sendingIndicator.id = 'sending-indicator-' + Date.now();
+
+                messagesContainer.appendChild(sendingIndicator);
+
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } catch (error) {
+                console.error('Failed to send message:', error);
+                showNotification('Failed to send message: ' + error.message);
+            }
+        }
+
+        function markMessagesAsRead(chatId, messageIds) {
+            if (!socket) {
+                console.error('Cannot mark messages as read: WebSocket not connected');
+                return;
+            }
+
+            try {
+                console.log(`Marking messages as read for chat ${chatId}:`, messageIds);
+
+                // Use WebSocket to mark messages as read - match Gateway's @SubscribeMessage
+                if (Array.isArray(messageIds) && messageIds.length > 0) {
+                    // If specific message IDs were provided
+                    // Send each message ID separately as that's what the gateway expects
+                    messageIds.forEach(messageId => {
+                        socket.emit('markMessageRead', {
+                            messageId
+                        }, (acknowledgement) => {
+                            console.log('Mark message as read acknowledgement:', acknowledgement);
+                        });
+                    });
+                } else {
+                    console.warn('No message IDs provided to mark as read');
+                    // Currently the gateway doesn't support marking all chat messages as read
+                    // This would need to be implemented in the backend
+                }
+
+                // Update UI immediately for better UX
+                document.querySelectorAll('.message.received .read-status').forEach(status => {
+                    if (status.textContent === 'Sent') {
+                        status.textContent = 'Read ' + new Date().toLocaleString();
+                    }
+                });
+            } catch (error) {
+                console.error('Failed to mark messages as read:', error);
+            }
+        }
+
+        // New Chat Modal Functions
+        function showNewChatModal() {
+            const modal = document.getElementById('new-chat-modal');
+            modal.style.display = 'block';
+
+            // Populate recipients dropdown for private chat
+            const recipientSelect = document.getElementById('recipient-id');
+            recipientSelect.innerHTML = '';
+
+            users.filter(user => user.id !== currentUser.id).forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.email;
+                recipientSelect.appendChild(option);
+            });
+
+            // Populate members list for group chat
+            const membersListContainer = document.getElementById('group-members-list');
+            membersListContainer.innerHTML = '';
+
+            users.filter(user => user.id !== currentUser.id).forEach(user => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `member-${user.id}`;
+                checkbox.value = user.id;
+
+                const label = document.createElement('label');
+                label.htmlFor = `member-${user.id}`;
+                label.textContent = user.email;
+
+                const div = document.createElement('div');
+                div.appendChild(checkbox);
+                div.appendChild(label);
+
+                membersListContainer.appendChild(div);
+            });
+        }
+
+        function closeNewChatModal() {
+            document.getElementById('new-chat-modal').style.display = 'none';
+        }
+
+        async function createChat() {
+            try {
+                console.log('Creating chat in tab mode:', activeTab);
+
+                if (activeTab === 'private') {
+                    const recipientId = document.getElementById('recipient-id').value;
+                    console.log('Selected recipient ID:', recipientId);
+
+                    console.log('Sending request to create private chat...');
+                    const newChat = await makeRequest('chats/private', 'POST', {
+                        participantId: recipientId
+                    });
+                    console.log('Private chat created:', newChat);
+
+                    // Add to chats list and select it
+                    chats.private.push(newChat);
+                    activeTab = 'private';
+                    selectChat(newChat);
+                } else {
+                    const name = document.getElementById('group-name').value;
+                    console.log('Group name:', name);
+
+                    if (!name) {
+                        showNotification('Group name is required');
+                        return;
+                    }
+
+                    // Get selected members
+                    const memberCheckboxes = document.querySelectorAll('#group-members-list input[type="checkbox"]:checked');
+                    const memberIds = Array.from(memberCheckboxes).map(checkbox => checkbox.value);
+                    console.log('Selected member IDs:', memberIds);
+
+                    if (memberIds.length === 0) {
+                        showNotification('Please select at least one member');
+                        return;
+                    }
+
+                    console.log('Sending request to create group chat...');
+                    const newChat = await makeRequest('chats/group', 'POST', {
+                        name,
+                        participantIds: memberIds
+                    });
+                    console.log('Group chat created:', newChat);
+
+                    // Add to chats list and select it
+                    chats.group.push(newChat);
+                    activeTab = 'group';
+                    selectChat(newChat);
+                }
+
+                // Update tabs and chat list
+                tabs.forEach(tab => {
+                    tab.classList.remove('active');
+                    if (tab.dataset.tab === activeTab) {
+                        tab.classList.add('active');
+                    }
+                });
+
+                renderChatList();
+                closeNewChatModal();
+            } catch (error) {
+                console.error('Failed to create chat:', error);
+            }
+        }
+
+        // Chat Info Modal Functions
+        function showChatInfo() {
+            if (!activeChat) return;
+
+            const modal = document.getElementById('chat-info-modal');
+            const content = document.getElementById('chat-info-content');
+            const groupControls = document.getElementById('group-chat-controls');
+
+            // Display chat information
+            content.innerHTML = '';
+
+            if (activeTab === 'private') {
+                const otherUser = activeChat.participants.find(p => p.id !== currentUser.id);
+                content.innerHTML = `
+                    <p><strong>Type:</strong> Private Chat</p>
+                    <p><strong>With:</strong> ${otherUser ? otherUser.email : 'Unknown User'}</p>
+                    <p><strong>Created:</strong> ${new Date(activeChat.createdAt).toLocaleString()}</p>
+                `;
+                groupControls.style.display = 'none';
+            } else {
+                content.innerHTML = `
+                    <p><strong>Type:</strong> Group Chat</p>
+                    <p><strong>Name:</strong> ${activeChat.name}</p>
+                    <p><strong>Created:</strong> ${new Date(activeChat.createdAt).toLocaleString()}</p>
+                    <p><strong>Created by:</strong> ${activeChat.createdBy ? activeChat.createdBy.email : 'Unknown'}</p>
+                `;
+
+                // Show group controls if current user is the creator
+                if (activeChat.createdBy && activeChat.createdBy.id === currentUser.id) {
+                    groupControls.style.display = 'block';
+                    renderGroupMembers();
+                    populateNewMemberDropdown();
+                } else {
+                    groupControls.style.display = 'none';
+                }
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function closeChatInfoModal() {
+            document.getElementById('chat-info-modal').style.display = 'none';
+        }
+
+        function renderGroupMembers() {
+            const membersList = document.getElementById('members-list');
+            membersList.innerHTML = '';
+
+            if (!activeChat || !activeChat.participants) return;
+
+            activeChat.participants.forEach(member => {
+                const memberDiv = document.createElement('div');
+                memberDiv.style.display = 'flex';
+                memberDiv.style.justifyContent = 'space-between';
+                memberDiv.style.alignItems = 'center';
+                memberDiv.style.marginBottom = '5px';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = member.email;
+
+                memberDiv.appendChild(nameSpan);
+
+                // Add remove button except for current user and creator
+                if (member.id !== currentUser.id && member.id !== activeChat.createdBy.id) {
+                    const removeBtn = document.createElement('button');
+                    removeBtn.textContent = 'Remove';
+                    removeBtn.style.padding = '4px 8px';
+                    removeBtn.style.fontSize = '0.8em';
+
+                    removeBtn.addEventListener('click', () => removeMemberFromGroup(member.id));
+
+                    memberDiv.appendChild(removeBtn);
+                }
+
+                membersList.appendChild(memberDiv);
+            });
+        }
+
+        function populateNewMemberDropdown() {
+            const newMemberSelect = document.getElementById('new-member-id');
+            newMemberSelect.innerHTML = '';
+
+            // Get current member IDs
+            const currentMemberIds = activeChat.participants.map(p => p.id);
+
+            // Filter users not in the group
+            const availableUsers = users.filter(user => !currentMemberIds.includes(user.id));
+
+            if (availableUsers.length === 0) {
+                const option = document.createElement('option');
+                option.textContent = 'No available users';
+                option.disabled = true;
+                newMemberSelect.appendChild(option);
+                document.getElementById('add-member-btn').disabled = true;
+            } else {
+                availableUsers.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.email;
+                    newMemberSelect.appendChild(option);
+                });
+                document.getElementById('add-member-btn').disabled = false;
+            }
+        }
+
+        async function addMemberToGroup() {
+            if (!activeChat) return;
+
+            const memberId = document.getElementById('new-member-id').value;
+
+            try {
+                await makeRequest(`chats/groups/${activeChat.id}/members`, 'POST', {
+                    userId: memberId
+                });
+
+                // This will be updated via WebSocket event, but we can update UI immediately
+                const userToAdd = users.find(u => u.id === memberId);
+                if (userToAdd && !activeChat.participants.some(p => p.id === memberId)) {
+                    activeChat.participants.push(userToAdd);
+                    renderGroupMembers();
+                    populateNewMemberDropdown();
+                }
+            } catch (error) {
+                console.error('Failed to add member:', error);
+            }
+        }
+
+        async function removeMemberFromGroup(memberId) {
+            if (!activeChat) return;
+
+            try {
+                await makeRequest(`chats/groups/${activeChat.id}/members/${memberId}`, 'DELETE');
+
+                // This will be updated via WebSocket event, but we can update UI immediately
+                activeChat.participants = activeChat.participants.filter(p => p.id !== memberId);
+                renderGroupMembers();
+                populateNewMemberDropdown();
+            } catch (error) {
+                console.error('Failed to remove member:', error);
+            }
+        }
+
+        // WebSocket Event Handlers
+        function handleNewMessage(message) {
+            console.log('New message received via WebSocket:', message);
+
+            // The gateway sends messages from the messageReceived event
+            // Check if message has the expected format
+            if (!message || !message.id || !message.chatId || !message.content) {
+                console.warn('Received message with unexpected format:', message);
+                return;
+            }
+
+            // Play notification sound (optional)
+            try {
+                // You would need to add this audio file to your project
+                // const audio = new Audio('/sounds/message.mp3');
+                // audio.play();
+            } catch (e) {
+                console.warn('Could not play notification sound:', e);
+            }
+
+            // Update chat in the list
+            const chatType = message.chatType === 'private' ? 'private' : 'group';
+            const chatIndex = chats[chatType].findIndex(c => c.id === message.chatId);
+
+            if (chatIndex !== -1) {
+                chats[chatType][chatIndex].lastMessage = message;
+
+                // Update unread count if not the active chat
+                if (!activeChat || activeChat.id !== message.chatId) {
+                    chats[chatType][chatIndex].unreadCount = (chats[chatType][chatIndex].unreadCount || 0) + 1;
+                }
+
+                // Re-render chat list if it's the current tab
+                if (activeTab === chatType) {
+                    renderChatList();
+                }
+            } else {
+                console.warn(`Chat with ID ${message.chatId} not found in ${chatType} chats. Refreshing chats list...`);
+                // Try to reload chats to get the updated list
+                loadChats().then(() => renderChatList());
+            }
+
+            // If message is for active chat, add it directly to the UI
+            if (activeChat && activeChat.id === message.chatId) {
+                console.log('Adding new message to active chat directly');
+
+                // Add message to DOM directly instead of reloading all messages
+                const messageElement = document.createElement('div');
+
+                // Check if current user is the sender
+                const isSentByCurrentUser = message.senderId === currentUser.id;
+                messageElement.className = `message ${isSentByCurrentUser ? 'sent' : 'received'}`;
+
+                // Determine sender name
+                let senderName = 'Unknown User';
+                if (isSentByCurrentUser) {
+                    senderName = 'You';
+                } else if (message.sender) {
+                    senderName = message.sender.email || message.sender.name ||
+                               message.sender.userName || 'Unknown User';
+                }
+
+                messageElement.innerHTML = `
+                    <div><strong>${senderName}</strong></div>
+                    <div>${message.content || 'Empty message'}</div>
+                    <div class="timestamp">${new Date().toLocaleString()}</div>
+                    <div class="read-status">Sent</div>
+                `;
+
+                messagesContainer.appendChild(messageElement);
+
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // If message from other user, mark as read
+                if (!isSentByCurrentUser) {
+                    try {
+                        // Use WebSocket to mark this specific message as read
+                        markMessagesAsRead(message.chatId, [message.id]);
+                    } catch (e) {
+                        console.error('Failed to mark message as read:', e);
+                    }
+                }
+            } else {
+                // Show notification for new message
+                const sender = message.sender ? (message.sender.email || message.sender.name || 'User') : 'Unknown User';
+                const content = message.content || '';
+                showNotification(`New message from ${sender}: ${content.substring(0, 30)}${content.length > 30 ? '...' : ''}`);
+            }
+        }
+
+        function handleMessageRead(data) {
+            console.log('Message read:', data);
+
+            // Update message read status if in active chat
+            if (activeChat && activeChat.id === data.chatId) {
+                loadMessages(activeChat.id);
+            }
+        }
+
+        function handleNewChat(chat) {
+            console.log('New chat created:', chat);
+
+            // Add to appropriate list
+            const chatType = chat.type === 'private' ? 'private' : 'group';
+
+            // Check if chat already exists
+            if (!chats[chatType].some(c => c.id === chat.id)) {
+                chats[chatType].push(chat);
+
+                // Re-render chat list if it's the current tab
+                if (activeTab === chatType) {
+                    renderChatList();
+                }
+
+                // Show notification
+                showNotification(`New ${chatType} chat ${chatType === 'group' ? chat.name : 'created'}`);
+            }
+        }
+
+        function handleGroupMemberAdded(data) {
+            console.log('Group member added:', data);
+
+            // Update group chat if it's the active chat
+            if (activeChat && activeChat.id === data.chatId) {
+                // Find the user
+                const user = users.find(u => u.id === data.userId);
+
+                if (user && !activeChat.participants.some(p => p.id === data.userId)) {
+                    activeChat.participants.push(user);
+
+                    // Update UI if info modal is open
+                    if (document.getElementById('chat-info-modal').style.display === 'block') {
+                        renderGroupMembers();
+                        populateNewMemberDropdown();
+                    }
+                }
+            }
+
+            showNotification(`User added to group ${data.chatName || ''}`);
+        }
+
+        function handleGroupMemberRemoved(data) {
+            console.log('Group member removed:', data);
+
+            // Update group chat if it's the active chat
+            if (activeChat && activeChat.id === data.chatId) {
+                activeChat.participants = activeChat.participants.filter(p => p.id !== data.userId);
+
+                // Update UI if info modal is open
+                if (document.getElementById('chat-info-modal').style.display === 'block') {
+                    renderGroupMembers();
+                    populateNewMemberDropdown();
+                }
+
+                // If current user was removed, go back to chat list
+                if (data.userId === currentUser.id) {
+                    activeChat = null;
+                    messageForm.style.display = 'none';
+                    chatActions.style.display = 'none';
+                    renderChatList();
+                    messagesContainer.innerHTML = '<div class="notification">Select a chat to start messaging</div>';
+                    chatTitle.textContent = 'Select a chat';
+                }
+            }
+
+            // Remove from chats list if current user was removed
+            if (data.userId === currentUser.id) {
+                chats.group = chats.group.filter(c => c.id !== data.chatId);
+
+                if (activeTab === 'group') {
+                    renderChatList();
+                }
+            }
+
+            showNotification(`User removed from group ${data.chatName || ''}`);
+        }
+
+        // Utility Functions
+        function showNotification(message, duration = 3000) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.backgroundColor = '#f8dcdc';
+            notification.style.padding = '10px 20px';
+            notification.style.borderRadius = '5px';
+            notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+            notification.style.zIndex = '1000';
+            notification.style.transition = 'opacity 0.5s';
+
+            document.body.appendChild(notification);
+
+            // Allow browser to process the append before starting opacity transition
+            setTimeout(() => {
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 500);
+                }, duration);
+            }, 10);
+
+            return notification;
+        }
+    </script>
+</body>
+</html>

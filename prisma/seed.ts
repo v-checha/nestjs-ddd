@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
-import { ResourceType } from '@domain/user/value-objects/resource.vo';
-import { ActionType } from '@domain/user/value-objects/permission-action.vo';
-import { RoleTypeEnum } from '@domain/user/value-objects/role-type.vo';
+import { ResourceType } from '../src/domain/user/value-objects/resource.vo';
+import { ActionType } from '../src/domain/user/value-objects/permission-action.vo';
+import { RoleTypeEnum } from '../src/domain/user/value-objects/role-type.vo';
 
 const prisma = new PrismaClient();
 
@@ -90,10 +90,10 @@ const defaultUsers = [
     id: uuidv4(),
     email: 'user@example.com',
     firstName: 'Regular',
-    lastName: 'User',
+    lastName: 'Guest',
     password: 'password123',
     isVerified: true,
-    roleName: 'User', // Will be linked to role
+    roleName: 'Guest', // Will be linked to role
   },
 ];
 
@@ -103,14 +103,17 @@ const rolePermissionMap = {
   'Super Administrator': Object.values(ResourceType),
   'Administrator': [
     ResourceType.USER, ResourceType.ROLE, ResourceType.PERMISSION,
-    ResourceType.SETTINGS, ResourceType.ANALYTICS, ResourceType.AUDIT
+    ResourceType.SETTINGS, ResourceType.ANALYTICS, ResourceType.AUDIT,
+    ResourceType.CHAT
   ],
   'Moderator': [
     ResourceType.POST, ResourceType.COMMENT, ResourceType.MEDIA,
-    ResourceType.CATEGORY, ResourceType.TAG
+    ResourceType.CATEGORY, ResourceType.TAG,
+    ResourceType.CHAT
   ],
   'User': [
-    ResourceType.PROFILE
+    ResourceType.PROFILE,
+    ResourceType.CHAT
   ],
   'Guest': [] // No permissions
 };

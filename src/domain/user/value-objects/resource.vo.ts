@@ -14,6 +14,7 @@ export enum ResourceType {
   SETTINGS = 'settings',
   ANALYTICS = 'analytics',
   AUDIT = 'audit',
+  CHAT = 'chat',
 }
 
 interface ResourceProps {

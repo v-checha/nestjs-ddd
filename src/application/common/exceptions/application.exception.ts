@@ -1,4 +1,4 @@
-export abstract class ApplicationException extends Error {
+export class ApplicationException extends Error {
   constructor(message: string) {
     super(message);
     this.name = this.constructor.name;
@@ -56,5 +56,24 @@ export class TokenExpiredException extends ApplicationException {
 export class InvalidTokenTypeException extends ApplicationException {
   constructor() {
     super('Invalid token type');
+  }
+}
+
+// Chat-related exceptions
+export class ChatNotFoundException extends ApplicationException {
+  constructor(id: string) {
+    super(`Chat with id ${id} not found`);
+  }
+}
+
+export class MessageNotFoundException extends ApplicationException {
+  constructor(id: string) {
+    super(`Message with id ${id} not found`);
+  }
+}
+
+export class UnauthorizedChatAccessException extends ApplicationException {
+  constructor(userId: string, chatId: string) {
+    super(`User ${userId} is not authorized to access chat ${chatId}`);
   }
 }

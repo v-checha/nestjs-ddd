@@ -41,3 +41,4 @@ lerna-debug.log*
 
 # Prisma
 /prisma/migrations/
+**/.claude/settings.local.json
