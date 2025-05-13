@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
 import { Public } from '@frameworks/nest/decorators/public.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse as SwaggerResponse, ApiTags } from '@nestjs/swagger';
