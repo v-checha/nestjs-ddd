@@ -4,11 +4,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 import { ChatController } from '../controllers/chat.controller';
-import { JwtAuthGuard } from '@frameworks/nest/guards/jwt-auth.guard';
-import { PermissionsGuard } from '@frameworks/nest/guards/permissions.guard';
-import { ChatApplicationModule } from '@application/chat/application.module';
 import { ChatWebsocketModule } from '../../websocket/chat/chat.module';
 import { UserModule } from '@frameworks/nest/modules/user.module';
+import { ChatModule } from '@frameworks/nest/modules/chat.module';
 
 import { chatRepositoryProviders } from '@infrastructure/persistence/repositories';
 import { PrismaModule } from '@infrastructure/persistence/prisma/prisma.module';
@@ -16,7 +14,7 @@ import { PrismaModule } from '@infrastructure/persistence/prisma/prisma.module';
 @Module({
   imports: [
     CqrsModule,
-    ChatApplicationModule,
+    ChatModule,
     ChatWebsocketModule,
     PrismaModule,
     UserModule,
@@ -31,11 +29,6 @@ import { PrismaModule } from '@infrastructure/persistence/prisma/prisma.module';
     }),
   ],
   controllers: [ChatController],
-  providers: [
-    JwtAuthGuard,
-    PermissionsGuard,
-    ...chatRepositoryProviders
-  ],
-  exports: [JwtAuthGuard, PermissionsGuard],
+  providers: [...chatRepositoryProviders],
 })
 export class ChatRestModule {}

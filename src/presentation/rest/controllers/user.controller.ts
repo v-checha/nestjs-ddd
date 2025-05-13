@@ -6,12 +6,17 @@ import {
   ApiResponse as SwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { ResourceType } from '@domain/user/value-objects/resource.vo';
+import { ActionType } from '@domain/user/value-objects/permission-action.vo';
+import {
+  RequirePermissions,
+  createPermissionString,
+} from '@frameworks/nest/decorators/permissions.decorator';
 import { ApiResponse, Meta } from '../dtos/response/api-response';
 import { CreateUserCommand } from '@application/user/commands/create-user/create-user.command';
 import { UpdateUserCommand } from '@application/user/commands/update-user/update-user.command';
 import { GetUserQuery } from '@application/user/queries/get-user/get-user.query';
 import { ListUsersQuery } from '@application/user/queries/list-users/list-users.query';
-import { JwtAuthGuard } from '@frameworks/nest/guards/jwt-auth.guard';
 import { CreateUserRequest } from '../dtos/request/create-user.request';
 import { UserResponse } from '../dtos/response/user.response';
 import { AssignRoleToUserCommand } from '@application/user/commands/assign-role-to-user/assign-role-to-user.command';
@@ -27,8 +32,8 @@ export class UserController {
   ) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @RequirePermissions(createPermissionString(ResourceType.USER, ActionType.CREATE))
   @ApiOperation({ summary: 'Create a new user' })
   @SwaggerResponse({
     status: 201,
@@ -49,8 +54,8 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @RequirePermissions(createPermissionString(ResourceType.USER, ActionType.READ))
   @ApiOperation({ summary: 'Get all users' })
   @SwaggerResponse({
     status: 200,
@@ -64,8 +69,8 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @RequirePermissions(createPermissionString(ResourceType.USER, ActionType.READ))
   @ApiOperation({ summary: 'Get a user by ID' })
   @SwaggerResponse({
     status: 200,
@@ -80,8 +85,8 @@ export class UserController {
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @RequirePermissions(createPermissionString(ResourceType.USER, ActionType.UPDATE))
   @ApiOperation({ summary: 'Update a user' })
   @SwaggerResponse({
     status: 200,
@@ -101,8 +106,8 @@ export class UserController {
   }
 
   @Post(':id/roles')
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @RequirePermissions(createPermissionString(ResourceType.USER, ActionType.UPDATE))
   @ApiOperation({ summary: 'Assign a role to a user' })
   @SwaggerResponse({
     status: 200,
@@ -122,8 +127,8 @@ export class UserController {
   }
 
   @Delete(':userId/roles/:roleId')
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @RequirePermissions(createPermissionString(ResourceType.USER, ActionType.UPDATE))
   @ApiOperation({ summary: 'Remove a role from a user' })
   @SwaggerResponse({
     status: 200,

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
@@ -9,8 +9,6 @@ import {
 } from '@nestjs/swagger';
 import { ResourceType } from '@domain/user/value-objects/resource.vo';
 import { ActionType } from '@domain/user/value-objects/permission-action.vo';
-import { JwtAuthGuard } from '@frameworks/nest/guards/jwt-auth.guard';
-import { PermissionsGuard } from '@frameworks/nest/guards/permissions.guard';
 import {
   RequirePermissions,
   createPermissionString,
@@ -26,7 +24,6 @@ import { ApiResponse, Meta } from '../dtos/response/api-response';
 
 @ApiTags('roles')
 @Controller('roles')
-@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class RoleController {
   constructor(
@@ -35,7 +32,6 @@ export class RoleController {
   ) {}
 
   @Post()
-  @UseGuards(PermissionsGuard)
   @RequirePermissions(createPermissionString(ResourceType.ROLE, ActionType.CREATE))
   @ApiOperation({ summary: 'Create a new role' })
   @SwaggerResponse({
@@ -52,7 +48,6 @@ export class RoleController {
   }
 
   @Get()
-  @UseGuards(PermissionsGuard)
   @RequirePermissions(createPermissionString(ResourceType.ROLE, ActionType.READ))
   @ApiOperation({ summary: 'Get all roles' })
   @ApiQuery({
@@ -88,7 +83,6 @@ export class RoleController {
   }
 
   @Get(':id')
-  @UseGuards(PermissionsGuard)
   @RequirePermissions(createPermissionString(ResourceType.ROLE, ActionType.READ))
   @ApiOperation({ summary: 'Get a role by ID' })
   @SwaggerResponse({
@@ -104,7 +98,6 @@ export class RoleController {
   }
 
   @Put(':id')
-  @UseGuards(PermissionsGuard)
   @RequirePermissions(createPermissionString(ResourceType.ROLE, ActionType.UPDATE))
   @ApiOperation({ summary: 'Update a role' })
   @SwaggerResponse({

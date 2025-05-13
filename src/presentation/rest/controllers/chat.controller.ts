@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
@@ -8,8 +8,6 @@ import {
   ApiResponse as SwaggerResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@frameworks/nest/guards/jwt-auth.guard';
-import { PermissionsGuard } from '@frameworks/nest/guards/permissions.guard';
 import {
   RequirePermissions,
   createPermissionString,
@@ -35,7 +33,6 @@ import { ChatMessagesResponse } from '../dtos/response/message.response';
 
 @ApiTags('chat')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('chats')
 export class ChatController {
   constructor(

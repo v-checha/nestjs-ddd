@@ -9,7 +9,6 @@ import { ResetPasswordCommand } from '@application/user/commands/reset-password/
 import { VerifyEmailCommand } from '@application/user/commands/verify-email/verify-email.command';
 import { RefreshTokenCommand } from '@application/user/commands/refresh-token/refresh-token.command';
 import { LogoutCommand } from '@application/user/commands/logout/logout.command';
-import { JwtAuthGuard } from '@frameworks/nest/guards/jwt-auth.guard';
 import { LoginRequest } from '../dtos/request/login.request';
 import { RegisterRequest } from '../dtos/request/register.request';
 import { ForgotPasswordRequest } from '../dtos/request/forgot-password.request';
@@ -136,7 +135,6 @@ export class AuthController {
   }
 
   @Post('logout')
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Logout and invalidate refresh token' })
   @SwaggerResponse({

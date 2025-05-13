@@ -8,7 +8,6 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -20,8 +19,6 @@ import {
 } from '@nestjs/swagger';
 import { ResourceType } from '@domain/user/value-objects/resource.vo';
 import { ActionType } from '@domain/user/value-objects/permission-action.vo';
-import { JwtAuthGuard } from '@frameworks/nest/guards/jwt-auth.guard';
-import { PermissionsGuard } from '@frameworks/nest/guards/permissions.guard';
 import {
   RequirePermissions,
   createPermissionString,
@@ -37,7 +34,6 @@ import { ListPermissionsQuery } from '@application/user/queries/list-permissions
 
 @ApiTags('permissions')
 @Controller('permissions')
-@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class PermissionController {
   constructor(
@@ -46,7 +42,6 @@ export class PermissionController {
   ) {}
 
   @Post()
-  @UseGuards(PermissionsGuard)
   @RequirePermissions(createPermissionString(ResourceType.PERMISSION, ActionType.CREATE))
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new permission' })
@@ -71,7 +66,6 @@ export class PermissionController {
   }
 
   @Get()
-  @UseGuards(PermissionsGuard)
   @RequirePermissions(createPermissionString(ResourceType.PERMISSION, ActionType.READ))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all permissions' })
@@ -110,12 +104,11 @@ export class PermissionController {
       totalPages: result.totalPages,
       totalCount: result.total,
       pageSize: result.limit,
-      message: 'Permissions retrieved successfully'
+      message: 'Permissions retrieved successfully',
     });
   }
 
   @Get(':id')
-  @UseGuards(PermissionsGuard)
   @RequirePermissions(createPermissionString(ResourceType.PERMISSION, ActionType.READ))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a permission by ID' })
@@ -132,7 +125,6 @@ export class PermissionController {
   }
 
   @Put(':id')
-  @UseGuards(PermissionsGuard)
   @RequirePermissions(createPermissionString(ResourceType.PERMISSION, ActionType.UPDATE))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update a permission' })
