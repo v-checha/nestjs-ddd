@@ -1,6 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse as SwaggerResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ApiResponse, Meta } from '../dtos/response/api-response';
 import { CreateUserCommand } from '@application/user/commands/create-user/create-user.command';
 import { UpdateUserCommand } from '@application/user/commands/update-user/update-user.command';
 import { GetUserQuery } from '@application/user/queries/get-user/get-user.query';
@@ -24,12 +30,12 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new user' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 201,
     description: 'User created successfully',
     type: UserResponse,
   })
-  async createUser(@Body() request: CreateUserRequest): Promise<UserResponse> {
+  async createUser(@Body() request: CreateUserRequest): Promise<ApiResponse<UserResponse>> {
     const command = new CreateUserCommand(
       request.email,
       request.firstName,
@@ -37,90 +43,102 @@ export class UserController {
       request.password,
     );
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+
+    return ApiResponse.success(result, new Meta({ message: 'User created successfully' }));
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'List of users',
     type: [UserResponse],
   })
-  async getUsers(): Promise<UserResponse[]> {
-    return this.queryBus.execute(new ListUsersQuery());
+  async getUsers(): Promise<ApiResponse<UserResponse[]>> {
+    const result = await this.queryBus.execute(new ListUsersQuery());
+
+    return ApiResponse.success(result, new Meta({ message: 'Users retrieved successfully' }));
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a user by ID' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'User found',
     type: UserResponse,
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  async getUser(@Param('id') id: string): Promise<UserResponse> {
-    return this.queryBus.execute(new GetUserQuery(id));
+  @SwaggerResponse({ status: 404, description: 'User not found' })
+  async getUser(@Param('id') id: string): Promise<ApiResponse<UserResponse>> {
+    const result = await this.queryBus.execute(new GetUserQuery(id));
+
+    return ApiResponse.success(result, new Meta({ message: 'User retrieved successfully' }));
   }
 
   @Put(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a user' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'User updated successfully',
     type: UserResponse,
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @SwaggerResponse({ status: 404, description: 'User not found' })
   async updateUser(
     @Param('id') id: string,
     @Body() request: Partial<CreateUserRequest>,
-  ): Promise<UserResponse> {
+  ): Promise<ApiResponse<UserResponse>> {
     const command = new UpdateUserCommand(id, request.firstName, request.lastName, request.email);
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+
+    return ApiResponse.success(result, new Meta({ message: 'User updated successfully' }));
   }
 
   @Post(':id/roles')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Assign a role to a user' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Role assigned to user successfully',
     type: UserResponse,
   })
-  @ApiResponse({ status: 404, description: 'User or role not found' })
+  @SwaggerResponse({ status: 404, description: 'User or role not found' })
   async assignRole(
     @Param('id') userId: string,
     @Body() request: AssignRoleRequest,
-  ): Promise<UserResponse> {
+  ): Promise<ApiResponse<UserResponse>> {
     const command = new AssignRoleToUserCommand(userId, request.roleId);
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+
+    return ApiResponse.success(result, new Meta({ message: 'Role assigned successfully' }));
   }
 
   @Delete(':userId/roles/:roleId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Remove a role from a user' })
-  @ApiResponse({
+  @SwaggerResponse({
     status: 200,
     description: 'Role removed from user successfully',
     type: UserResponse,
   })
-  @ApiResponse({ status: 404, description: 'User or role not found' })
+  @SwaggerResponse({ status: 404, description: 'User or role not found' })
   async removeRole(
     @Param('userId') userId: string,
     @Param('roleId') roleId: string,
-  ): Promise<UserResponse> {
+  ): Promise<ApiResponse<UserResponse>> {
     const command = new RemoveRoleFromUserCommand(userId, roleId);
 
-    return this.commandBus.execute(command);
+    const result = await this.commandBus.execute(command);
+
+    return ApiResponse.success(result, new Meta({ message: 'Role removed successfully' }));
   }
 }

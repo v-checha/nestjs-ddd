@@ -22,7 +22,7 @@ import { CreateRoleCommand } from '@application/user/commands/create-role/create
 import { UpdateRoleCommand } from '@application/user/commands/update-role/update-role.command';
 import { GetRoleQuery } from '@application/user/queries/get-role/get-role.query';
 import { ListRolesQuery } from '@application/user/queries/list-roles/list-roles.query';
-import { ApiResponse } from '../dtos/response/api-response';
+import { ApiResponse, Meta } from '../dtos/response/api-response';
 
 @ApiTags('roles')
 @Controller('roles')
@@ -48,7 +48,7 @@ export class RoleController {
 
     const result = await this.commandBus.execute(command);
 
-    return ApiResponse.success(result);
+    return ApiResponse.success(result, new Meta({ message: 'Role created successfully' }));
   }
 
   @Get()
@@ -83,6 +83,7 @@ export class RoleController {
       totalPages: result.totalPages,
       totalCount: result.total,
       pageSize: result.limit,
+      message: 'Roles retrieved successfully',
     });
   }
 
@@ -99,7 +100,7 @@ export class RoleController {
   async getRole(@Param('id') id: string): Promise<ApiResponse<RoleResponse>> {
     const result = await this.queryBus.execute(new GetRoleQuery(id));
 
-    return ApiResponse.success(result);
+    return ApiResponse.success(result, new Meta({ message: 'Role retrieved successfully' }));
   }
 
   @Put(':id')
@@ -125,6 +126,6 @@ export class RoleController {
 
     const result = await this.commandBus.execute(command);
 
-    return ApiResponse.success(result);
+    return ApiResponse.success(result, new Meta({ message: 'Role updated successfully' }));
   }
 }

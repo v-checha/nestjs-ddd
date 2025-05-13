@@ -29,7 +29,7 @@ import {
 import { CreatePermissionRequest } from '../dtos/request/create-permission.request';
 import { UpdatePermissionRequest } from '../dtos/request/update-permission.request';
 import { PermissionResponse } from '../dtos/response/permission.response';
-import { ApiResponse } from '../dtos/response/api-response';
+import { ApiResponse, Meta } from '../dtos/response/api-response';
 import { CreatePermissionCommand } from '@application/user/commands/create-permission/create-permission.command';
 import { UpdatePermissionCommand } from '@application/user/commands/update-permission/update-permission.command';
 import { GetPermissionQuery } from '@application/user/queries/get-permission/get-permission.query';
@@ -67,7 +67,7 @@ export class PermissionController {
 
     const result = await this.commandBus.execute(command);
 
-    return ApiResponse.success(result);
+    return ApiResponse.success(result, new Meta({ message: 'Permission created successfully' }));
   }
 
   @Get()
@@ -110,6 +110,7 @@ export class PermissionController {
       totalPages: result.totalPages,
       totalCount: result.total,
       pageSize: result.limit,
+      message: 'Permissions retrieved successfully'
     });
   }
 
@@ -127,7 +128,7 @@ export class PermissionController {
   async getPermission(@Param('id') id: string): Promise<ApiResponse<PermissionResponse>> {
     const result = await this.queryBus.execute(new GetPermissionQuery(id));
 
-    return ApiResponse.success(result);
+    return ApiResponse.success(result, new Meta({ message: 'Permission retrieved successfully' }));
   }
 
   @Put(':id')
@@ -155,6 +156,6 @@ export class PermissionController {
 
     const result = await this.commandBus.execute(command);
 
-    return ApiResponse.success(result);
+    return ApiResponse.success(result, new Meta({ message: 'Permission updated successfully' }));
   }
 }

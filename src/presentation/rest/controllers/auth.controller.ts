@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Post,
-  HttpCode,
-  HttpStatus,
-  UseGuards,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { Public } from '@frameworks/nest/decorators/public.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse as SwaggerResponse, ApiTags } from '@nestjs/swagger';
@@ -27,7 +19,7 @@ import { RefreshTokenRequest } from '../dtos/request/refresh-token.request';
 import { LogoutRequest } from '../dtos/request/logout.request';
 import { AuthTokenResponse } from '../dtos/response/auth-token.response';
 import { UserResponse } from '../dtos/response/user.response';
-import { ApiResponse } from '../dtos/response/api-response';
+import { ApiResponse, Meta } from '../dtos/response/api-response';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -54,7 +46,7 @@ export class AuthController {
 
     const result = await this.commandBus.execute(command);
 
-    return ApiResponse.success(result);
+    return ApiResponse.success(result, new Meta({ message: 'User registered successfully' }));
   }
 
   @Post('login')
@@ -72,7 +64,7 @@ export class AuthController {
 
     const result = await this.commandBus.execute(command);
 
-    return ApiResponse.success(result);
+    return ApiResponse.success(result, new Meta({ message: 'Login successful' }));
   }
 
   @Post('verify-email')
@@ -86,14 +78,10 @@ export class AuthController {
   })
   @SwaggerResponse({ status: 400, description: 'Invalid token' })
   async verifyEmail(@Body() request: VerifyEmailRequest): Promise<ApiResponse<UserResponse>> {
-    try {
-      const command = new VerifyEmailCommand(request.token);
-      const result = await this.commandBus.execute(command);
+    const command = new VerifyEmailCommand(request.token);
+    const result = await this.commandBus.execute(command);
 
-      return ApiResponse.success(result);
-    } catch (_error) {
-      throw new UnauthorizedException('Invalid or expired verification token');
-    }
+    return ApiResponse.success(result, new Meta({ message: 'Email verified successfully' }));
   }
 
   @Post('forgot-password')
@@ -122,14 +110,10 @@ export class AuthController {
   })
   @SwaggerResponse({ status: 400, description: 'Invalid token' })
   async resetPassword(@Body() request: ResetPasswordRequest): Promise<ApiResponse<UserResponse>> {
-    try {
-      const command = new ResetPasswordCommand(request.token, request.newPassword);
-      const result = await this.commandBus.execute(command);
+    const command = new ResetPasswordCommand(request.token, request.newPassword);
+    const result = await this.commandBus.execute(command);
 
-      return ApiResponse.success(result);
-    } catch (_error) {
-      throw new UnauthorizedException('Invalid or expired reset token');
-    }
+    return ApiResponse.success(result, new Meta({ message: 'Password reset successfully' }));
   }
 
   @Post('refresh-token')
@@ -145,14 +129,10 @@ export class AuthController {
   async refreshToken(
     @Body() request: RefreshTokenRequest,
   ): Promise<ApiResponse<AuthTokenResponse>> {
-    try {
-      const command = new RefreshTokenCommand(request.refreshToken);
-      const result = await this.commandBus.execute(command);
+    const command = new RefreshTokenCommand(request.refreshToken);
+    const result = await this.commandBus.execute(command);
 
-      return ApiResponse.success(result);
-    } catch (_error) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
+    return ApiResponse.success(result, new Meta({ message: 'Token refreshed successfully' }));
   }
 
   @Post('logout')

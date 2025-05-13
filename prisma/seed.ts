@@ -90,10 +90,10 @@ const defaultUsers = [
     id: uuidv4(),
     email: 'user@example.com',
     firstName: 'Regular',
-    lastName: 'Guest',
+    lastName: 'User',
     password: 'password123',
     isVerified: true,
-    roleName: 'Guest', // Will be linked to role
+    roleName: 'User', // Will be linked to role
   },
 ];
 
