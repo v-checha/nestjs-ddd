@@ -1,12 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { PrivateChat } from '@domain/chat/entities/private-chat.entity';
+import { PrivateChat, PrivateChatProps } from '@domain/chat/entities/private-chat.entity';
 import { PrivateChatDto, PrivateChatParticipantDto } from '../dtos/private-chat.dto';
 import { Message } from '@domain/chat/entities/message.entity';
+import { PrismaPrivateChatModel } from '@infrastructure/persistence/prisma/prisma.types';
+import { UserId } from '@domain/user/value-objects/user-id.vo';
 
 @Injectable()
 export class PrivateChatMapper {
-  toDomain(raw: any): PrivateChat {
-    throw new Error('Method not implemented');
+  toDomain(raw: PrismaPrivateChatModel): PrivateChat {
+    if (!raw.participants || raw.participants.length !== 2) {
+      throw new Error('Private chat requires exactly 2 participants');
+    }
+
+    const participants = raw.participants.map(p => ({
+      userId: UserId.create(p.id),
+    }));
+
+    return PrivateChat.create(participants, raw.id);
   }
 
   toDto(entity: PrivateChat, lastMessage?: Message, unreadCount = 0): PrivateChatDto {

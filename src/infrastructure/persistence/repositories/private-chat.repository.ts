@@ -144,8 +144,23 @@ export class PrivateChatRepository implements PrivateChatRepositoryInterface {
     });
   }
 
-  private toDomain(rawData: any): PrivateChat {
-    const participants = rawData.participants.map((p: any) => ({
+  private toDomain(rawData: {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    participants: Array<{
+      userId: string;
+      joinedAt: Date;
+      isActive: boolean;
+      user?: {
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+      };
+    }>;
+  }): PrivateChat {
+    const participants = rawData.participants.map(p => ({
       userId: UserId.create(p.userId),
       joinedAt: p.joinedAt,
       isActive: p.isActive,
@@ -153,7 +168,7 @@ export class PrivateChatRepository implements PrivateChatRepositoryInterface {
 
     // Reconstruct the PrivateChat aggregate
     return PrivateChat.create(
-      participants.map((p: any) => ({ userId: p.userId })),
+      participants.map(p => ({ userId: p.userId })),
       rawData.id,
     );
   }

@@ -1,6 +1,6 @@
 // Define a more specific union type for allowed property values
 interface ValueObjectProps {
-  [index: string]: any;
+  [index: string]: string | number | boolean | Date | object | null | undefined;
 }
 
 export abstract class ValueObject<T extends ValueObjectProps> {

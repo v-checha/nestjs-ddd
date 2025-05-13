@@ -72,3 +72,44 @@ export interface PrismaVerificationTokenModel {
   expiresAt: Date;
   isUsed: boolean;
 }
+
+export interface PrismaMessageModel {
+  id: string;
+  content: string;
+  senderId: string;
+  sender?: PrismaUserModel;
+  chatId: string;
+  privateChatId: string | null;
+  groupChatId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  messageReadStatuses?: PrismaMessageReadStatusModel[];
+}
+
+export interface PrismaMessageReadStatusModel {
+  id: string;
+  messageId: string;
+  message?: PrismaMessageModel;
+  userId: string;
+  user?: PrismaUserModel;
+  readAt: Date;
+}
+
+export interface PrismaPrivateChatModel {
+  id: string;
+  participants?: PrismaUserModel[];
+  messages?: PrismaMessageModel[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PrismaGroupChatModel {
+  id: string;
+  name: string;
+  creatorId: string;
+  creator?: PrismaUserModel;
+  participants?: PrismaUserModel[];
+  messages?: PrismaMessageModel[];
+  createdAt: Date;
+  updatedAt: Date;
+}

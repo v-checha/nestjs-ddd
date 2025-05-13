@@ -1,12 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { GroupChat } from '@domain/chat/entities/group-chat.entity';
+import { GroupChat, GroupChatProps } from '@domain/chat/entities/group-chat.entity';
 import { GroupChatDto, GroupChatParticipantDto } from '../dtos/group-chat.dto';
 import { Message } from '@domain/chat/entities/message.entity';
+import { PrismaGroupChatModel } from '@infrastructure/persistence/prisma/prisma.types';
+import { UserId } from '@domain/user/value-objects/user-id.vo';
+import { ChatName } from '@domain/chat/value-objects/chat-name.vo';
 
 @Injectable()
 export class GroupChatMapper {
-  toDomain(raw: any): GroupChat {
-    throw new Error('Method not implemented');
+  toDomain(raw: PrismaGroupChatModel): GroupChat {
+    if (!raw.participants || !raw.creatorId) {
+      throw new Error('Group chat requires participants and a creator');
+    }
+
+    const creatorId = UserId.create(raw.creatorId);
+    const name = ChatName.create(raw.name);
+
+    // Filter out the creator, who will be added automatically in the create method
+    const participantsWithoutCreator = raw.participants
+      .filter(p => p.id !== raw.creatorId)
+      .map(p => ({
+        userId: UserId.create(p.id)
+      }));
+
+    return GroupChat.create(name, creatorId, participantsWithoutCreator, raw.id);
   }
 
   toDto(entity: GroupChat, lastMessage?: Message, unreadCount = 0): GroupChatDto {

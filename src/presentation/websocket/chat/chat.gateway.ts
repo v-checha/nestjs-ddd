@@ -17,6 +17,9 @@ import { WsJwtAuthGuard } from './guards/ws-jwt-auth.guard';
 import { SendMessageCommand } from '@application/chat/commands/send-message/send-message.command';
 import { MarkMessageReadCommand } from '@application/chat/commands/mark-message-read/mark-message-read.command';
 
+// Type definition for WebSocket event data
+type WebSocketEventData = Record<string, unknown>;
+
 interface ChatMessagePayload {
   chatId: string;
   content: string;
@@ -181,14 +184,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   // Method to notify specific users about events
-  notifyUsers(userIds: string[], event: string, data: any) {
+  notifyUsers(userIds: string[], event: string, data: WebSocketEventData) {
     userIds.forEach(userId => {
       this.server.to(`user:${userId}`).emit(event, data);
     });
   }
 
   // Method to notify everyone in a chat
-  notifyChat(chatId: string, event: string, data: any) {
+  notifyChat(chatId: string, event: string, data: WebSocketEventData) {
     this.server.to(`chat:${chatId}`).emit(event, data);
   }
 }

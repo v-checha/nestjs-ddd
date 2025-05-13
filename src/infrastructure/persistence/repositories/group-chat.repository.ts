@@ -116,8 +116,25 @@ export class GroupChatRepository implements GroupChatRepositoryInterface {
     });
   }
 
-  private toDomain(rawData: any): GroupChat {
-    const participants = rawData.participants.map((p: any) => ({
+  private toDomain(rawData: {
+    id: string;
+    name: string;
+    createdAt: Date;
+    updatedAt: Date;
+    participants: Array<{
+      userId: string;
+      joinedAt: Date;
+      isAdmin: boolean;
+      isActive: boolean;
+      user?: {
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+      };
+    }>;
+  }): GroupChat {
+    const participants = rawData.participants.map(p => ({
       userId: UserId.create(p.userId),
       joinedAt: p.joinedAt,
       isAdmin: p.isAdmin,
@@ -125,15 +142,13 @@ export class GroupChatRepository implements GroupChatRepositoryInterface {
     }));
 
     // Find the creator (first admin)
-    const creator = participants.find((p: any) => p.isAdmin) || participants[0];
+    const creator = participants.find(p => p.isAdmin) || participants[0];
 
     // Reconstruct the GroupChat aggregate
     return GroupChat.create(
       ChatName.create(rawData.name),
       creator.userId,
-      participants
-        .filter((p: any) => !p.userId.equals(creator.userId))
-        .map((p: any) => ({ userId: p.userId })),
+      participants.filter(p => !p.userId.equals(creator.userId)).map(p => ({ userId: p.userId })),
       rawData.id,
     );
   }

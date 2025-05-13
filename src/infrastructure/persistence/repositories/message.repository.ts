@@ -52,7 +52,7 @@ export class MessageRepository implements MessageRepositoryInterface {
   }
 
   async countUnreadByChatIdAndUserId(chatId: ChatId, userId: UserId): Promise<number> {
-    return await this.prisma.message.count({
+    return this.prisma.message.count({
       where: {
         OR: [{ privateChatId: chatId.value }, { groupChatId: chatId.value }],
         senderId: { not: userId.value },
@@ -120,14 +120,26 @@ export class MessageRepository implements MessageRepositoryInterface {
     });
   }
 
-  private toDomain(rawData: any): Message {
+  private toDomain(rawData: {
+    id: string;
+    content: string;
+    senderId: string;
+    privateChatId: string | null;
+    groupChatId: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }): Message {
+    // Convert null to undefined as required by the domain entity
+    const privateChatId = rawData.privateChatId || undefined;
+    const groupChatId = rawData.groupChatId || undefined;
+
     return Message.create(
       {
         content: MessageContent.create(rawData.content),
         senderId: UserId.create(rawData.senderId),
-        chatId: ChatId.create(rawData.privateChatId || rawData.groupChatId),
-        privateChatId: rawData.privateChatId,
-        groupChatId: rawData.groupChatId,
+        chatId: ChatId.create(privateChatId || (groupChatId as string)), // One must be non-null
+        privateChatId,
+        groupChatId,
       },
       rawData.id,
     );
